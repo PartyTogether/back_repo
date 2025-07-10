@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import asyncHandler from "express-async-handler";
 import axios from "axios";
 import session from "express-session";
+import jwt from "jsonwebtoken"
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ console.log('redirectUri:', process.env.REDIRECT_URI);
 const clientID: string = process.env.CLIENT_ID!;
 const clientSecret: string = process.env.CLIENT_SECRET!;
 const redirectUri: string = process.env.REDIRECT_URI!;
+const jwtSecret: string = process.env.JWT_SECRET!;
 
 router.get('/discord', (req:Request, res:Response) => {
     const scope: string = encodeURIComponent('identify email');
@@ -61,7 +63,7 @@ router.get('/discord/callback', asyncHandler(async (req, res) => {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
 
-        const accessToken = tokenResponse.data.access_token as string;
+        const token = tokenResponse.data.access_token as string;
 
         // 사용자 정보 요청 타입 정의
         interface DiscordUser {
@@ -77,14 +79,32 @@ router.get('/discord/callback', asyncHandler(async (req, res) => {
 
         // Discord API에서 사용자 정보 요청
         const userResponse = await axios.get<DiscordUser>('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: { Authorization: `Bearer ${token}` },
         });
 
-        // 세션에 사용자 정보 저장 (Express.Session 타입 확장 필요)
-        req.session.user = userResponse.data
+        const user: DiscordUser = userResponse.data;
+
+        const accessToken: string = jwt.sign(
+            {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+            },
+            jwtSecret,
+            { expiresIn: '7d' } // 만료기간 설정
+            );
+
+        // ✅ 쿠키에 JWT 저장 (HttpOnly 설정)
+        res.cookie('access_token', accessToken, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        console.log("발급된 access_token : ", accessToken);
 
         // 로그인 성공 후 리다이렉트
-        res.redirect('/');
+        res.redirect('http://localhost:3000');
     } catch (error) {
         console.error("Discord 인증 실패 : ", error);
         res.status(500).send("Discord 인증 실패");
