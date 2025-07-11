@@ -5,9 +5,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["src/**/*",
-    "env.d.ts"
-  ]  // 또는 env.d.ts 위치에 맞게 조정
+  "include": ["src", "env.d.ts", "types"]  // 또는 env.d.ts 위치에 맞게 조정
 }
