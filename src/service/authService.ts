@@ -1,6 +1,7 @@
 import axios from "axios";
-import { DiscordUser } from "../types/discorduser";
-import {generateAccessToken, generateRefreshToken} from "../utils/jwtutil";
+import {DiscordUser, UserPayload} from "../types/discorduser";
+import jwt from "jsonwebtoken";
+import {generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken} from "../utils/jwtutil";
 
 const clientID = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET!;
@@ -52,5 +53,39 @@ export const getDiscordUser = async (token: string) => {
         headers: { Authorization: `Bearer ${token}` },
     });
 
-    return userResponse.data;
+    const data = userResponse.data;
+    const user: UserPayload = { id: data.id, username: data.username, email: data.email }
+    return user;
+}
+
+// AccessToken 만료시 RefreshToken 으로 재발급
+export const generateNewTokens = (accessToken: string, refreshToken: string) => {
+    try {
+        const user = verifyAccessToken(accessToken);
+        return {
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        }
+    } catch (err)   {
+        // 만료 여부 체크
+        if (err instanceof jwt.TokenExpiredError) {
+            // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
+            try {
+                const user = verifyRefreshToken(refreshToken);
+                // 재발급
+                const newAccessToken = generateAccessToken(user);
+                const newRefreshToken = generateRefreshToken(user);
+                return {
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken,
+                };
+            } catch (refreshErr) {
+                // RefreshToken도 유효하지 않을 경우
+                throw new Error("Refresh Token이 유효하지 않습니다. 다시 로그인하세요.");
+            }
+        } else {
+            // AccessToken이 만료된 게 아니라 다른 오류
+            throw err;
+        }
+    }
 }

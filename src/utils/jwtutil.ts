@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import {DiscordUser, UserPayload} from "../types/discorduser";
+import {UserPayload} from "../types/discorduser";
 
 const jwtAccessSecret: string = process.env.JWT_ACCESS_SECRET!;
 const jwtRefreshSecret: string = process.env.JWT_REFRESH_SECRET!;
 
-export const generateAccessToken = (user: DiscordUser): string => {
+export const generateAccessToken = (user: UserPayload): string => {
     return jwt.sign(
         {
             id: user.id,
@@ -16,7 +16,7 @@ export const generateAccessToken = (user: DiscordUser): string => {
     );
 };
 
-export const generateRefreshToken = (user: DiscordUser): string => {
+export const generateRefreshToken = (user: UserPayload): string => {
     return jwt.sign(
         {
             id: user.id,
@@ -32,8 +32,14 @@ export const generateRefreshToken = (user: DiscordUser): string => {
 export const verifyAccessToken = (token: string) => {
     try {
         return jwt.verify(token, jwtAccessSecret) as UserPayload;
-    } catch(err)    {
-        throw new Error("Access Token 검증 실패");
+    } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+            throw new Error('토큰이 만료되었습니다.');
+        } else if (err instanceof jwt.JsonWebTokenError) {
+            throw new Error('유효하지 않은 토큰입니다.');
+        } else {
+            throw err;
+        }
     }
 }
 
@@ -41,7 +47,13 @@ export const verifyAccessToken = (token: string) => {
 export const verifyRefreshToken = (token: string) => {
     try {
         return jwt.verify(token, jwtRefreshSecret) as UserPayload;
-    } catch(err)    {
-        throw new Error("Access Token 검증 실패");
+    } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+            throw new Error('토큰이 만료되었습니다.');
+        } else if (err instanceof jwt.JsonWebTokenError) {
+            throw new Error('유효하지 않은 토큰입니다.');
+        } else {
+            throw err;
+        }
     }
 }
