@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
-    username: process.env.DB_USERNAME,
+    username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [__dirname+'/models/entities/*.ts'],  // dir 은 현재 파일경로기준

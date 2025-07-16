@@ -1,8 +1,8 @@
 import express , { Request, Response } from "express";
 import * as dotenv from 'dotenv';
+dotenv.config();
 import { AppDataSource } from './data-source';
 import 'reflect-metadata';
-dotenv.config();
 import oauthRouter from './router/oauthRouter';
 
 const app = express()
