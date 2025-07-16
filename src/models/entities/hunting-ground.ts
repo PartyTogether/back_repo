@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
-import { HuntingGroundType } from './hunting_ground_type';
+import { HuntingGroundType } from './hunting-ground-type';
 import {Continent} from "./continent";
 import {Room} from "./room";
 import {Bookmark} from "./bookmark";
