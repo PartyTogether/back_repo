@@ -22,5 +22,18 @@ AppDataSource.initialize()
             console.log(`Example app listening on port ${PORT}`)
         });
     }).catch((err) => {
-        console.error('DB 연결 실패:',err);
-    });
+    console.error('DB 연결 실패:',err);
+});
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('<h1>Hello World!</h1>')
+});
+
+app.use('/auth', oauthRouter, );
+  app.use('/auth', oauthRouter);
+  app.listen(PORT, () => {
+      console.log(`Example app listening on port ${PORT}`)
+  });
+}).catch((err) => {
+  console.error('DB 연결 실패:',err);
+});
