@@ -7,7 +7,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     // 토큰 없을 시
     if (!token) {
-        return res.status(401).json({ message: "Access Token이 없습니다." });
+        return res.status(411).json({ message: "Access Token이 없습니다." });
     }
 
     // 토큰 검증 성공 시 Payload를 req.user에 저장 후 다음 middleware로 진행

@@ -7,6 +7,7 @@ const clientID = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET!;
 const redirectUri = process.env.REDIRECT_URI!;
 
+// 디스코드 로그인 요청
 export const getDiscordLoginUrl = (): string => {
     const scope = encodeURIComponent("identify email");
     return `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${encodeURIComponent(
@@ -14,6 +15,7 @@ export const getDiscordLoginUrl = (): string => {
     )}&response_type=code&scope=${scope}`;
 };
 
+// 토큰 발급 및 반환
 export const getAuthTokens = async (code: string) => {
 
     // 디스코드에서 발급한 토큰

@@ -10,6 +10,6 @@ app.get('/', (req: Request, res: Response) => {
     res.send('<h1>Hello World!</h1>')
 });
 
-app.use('/auth', oauthRouter);
+app.use('/auth', oauthRouter, );
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}`));

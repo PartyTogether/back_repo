@@ -74,5 +74,4 @@ export const refreshTokens = (req: Request, res: Response) => {
     console.log("발급된 refresh_token : ", refreshToken);
 
     res.redirect(process.env.BASE_URL!);
-
 }

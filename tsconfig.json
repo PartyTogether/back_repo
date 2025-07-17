@@ -6,7 +6,9 @@
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src", "env.d.ts", "types"]  // 또는 env.d.ts 위치에 맞게 조정
 }
