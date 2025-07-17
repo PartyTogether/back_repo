@@ -13,6 +13,7 @@ const seedJob = async () => {
         {name:"팔라딘"},
         {name:"다크나이트"},
         {name:"히어로"},
+        {name:'공용'}
     ]
 
     const existing = await jobRepo.find({where: jobs,});

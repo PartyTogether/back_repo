@@ -56,7 +56,7 @@ const huntingGroundMap: Record<string, { name: string; rec_level: number; type: 
 };
 
 
-const seedHuntingGrounds = async () => {
+const seedHuntingGround = async () => {
     await AppDataSource.initialize();
 
     const continentRepo = AppDataSource.getRepository(Continent);
@@ -92,7 +92,7 @@ const seedHuntingGrounds = async () => {
     process.exit(0);
 };
 
-seedHuntingGrounds().catch((err) => {
+seedHuntingGround().catch((err) => {
     console.error('사냥터 시드 실패:', err);
     process.exit(1);
 });
