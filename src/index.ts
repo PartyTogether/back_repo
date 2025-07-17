@@ -26,9 +26,14 @@ AppDataSource.initialize()
 });
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('<h1>Hello World!</h1>')
+  res.send('<h1>Hello World!</h1>')
 });
 
 app.use('/auth', oauthRouter, );
-
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}`));
+  app.use('/auth', oauthRouter);
+  app.listen(PORT, () => {
+      console.log(`Example app listening on port ${PORT}`)
+  });
+}).catch((err) => {
+  console.error('DB 연결 실패:',err);
+});
