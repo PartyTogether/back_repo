@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  # my sql 설정
+  mysql:
+    image: mysql:8.0
+    container_name: matu_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+
+  # 어드민 GUI 설정 http://localhost:8080 접속시 GUI 가능
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
