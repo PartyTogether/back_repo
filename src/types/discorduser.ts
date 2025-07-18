@@ -11,7 +11,7 @@ export interface DiscordUser {
 }
 
 // 토큰에 저장되는 유저정보
-export interface UserPayload    {
+export interface MemberInfo {
     id: string;
     username: string;
     email?: string;

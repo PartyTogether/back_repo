@@ -1,7 +1,8 @@
 import axios from "axios";
-import {DiscordUser, UserPayload} from "../types/discorduser";
+import { DiscordUser } from "../types/discorduser";
 import jwt from "jsonwebtoken";
-import {generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken} from "../utils/jwtutil";
+import { MemberInfo } from "../types/discorduser";
+import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwtutil";
 
 const clientID = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET!;
@@ -22,11 +23,11 @@ export const getAuthTokens = async (code: string) => {
     const token: string = await getDiscordToken(code);
 
     // Discord에서 발급한 유저 정보
-    const user = await getDiscordUser(token);
+    const member = await getDiscordUser(token);
 
     // 유저 정보를 Token payload에 넣어 저장
-    const accessToken: string = generateAccessToken(user);
-    const refreshToken: string = generateRefreshToken(user);
+    const accessToken: string = generateAccessToken(member);
+    const refreshToken: string = generateRefreshToken(member);
 
     return { accessToken, refreshToken };
 };
@@ -51,13 +52,13 @@ export const getDiscordToken = async (code: string) => {
 
 // 디스코드에서 발급한 토큰으로 유저 정보 가져오기
 export const getDiscordUser = async (token: string) => {
-    const userResponse = await axios.get<DiscordUser>('https://discord.com/api/users/@me', {
+    const memberResponse = await axios.get<DiscordUser>('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${token}` },
     });
 
-    const data = userResponse.data;
-    const user: UserPayload = { id: data.id, username: data.username, email: data.email }
-    return user;
+    const data = memberResponse.data;
+    const member: MemberInfo = { id: data.id, username: data.username, email: data.email }
+    return member;
 }
 
 // AccessToken 만료시 RefreshToken 으로 재발급
