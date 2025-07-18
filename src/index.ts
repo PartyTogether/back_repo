@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppDataSource } from './data-source';
 import 'reflect-metadata';
-import oauthRouter from './router/oauthRouter';
+import oauthRouter from './router/authRouter';
 
 const app = express()
 const PORT = process.env.PORT || 5000;

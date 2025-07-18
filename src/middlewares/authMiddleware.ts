@@ -12,7 +12,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     // 토큰 검증 성공 시 Payload를 req.user에 저장 후 다음 middleware로 진행
     try {
-        req.user = verifyAccessToken(token);
+        req.member = verifyAccessToken(token);
         next();
     } catch (err) {
         return res.status(403).json({ message: "유효하지 않은 Access Token입니다." });
