@@ -3,6 +3,7 @@ import {Job} from "./job";
 import {Applicant} from "./applicant";
 import {application} from "express";
 import {Bookmark} from "./bookmark";
+import {MemberSkill} from "./member-skill";
 
 @Entity()
 export class Member{
@@ -50,6 +51,9 @@ export class Member{
 
     @ManyToOne(() => Job, (job) => job.members)
     job!: Job;
+
+    @OneToMany(() => MemberSkill,(memberSkill) => memberSkill.member)
+    memberSkills!: MemberSkill[];
 
     @OneToMany(() => Bookmark, (bookmark) => bookmark.member)
     bookmarks!: Bookmark[];

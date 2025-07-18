@@ -5,7 +5,11 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "seed:continent": "ts-node src/seed/seed-continent.ts",
+    "seed:hunting-ground": "ts-node src/seed/seed-hunting-ground.ts",
+    "seed:job": "ts-node src/seed/seed-job.ts",
+    "seed:skill": "ts-node src/seed/seed-skill.ts"
   },
   "keywords": [],
   "author": "",
