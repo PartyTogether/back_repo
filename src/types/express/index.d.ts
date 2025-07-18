@@ -1,4 +1,4 @@
-import { MemberInfo } from "../membertypes";
+import { MemberInfo } from "../discordMember";
 
 declare global {
     namespace Express {

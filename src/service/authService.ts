@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Membertypes } from "../types/membertypes";
+import { DiscordMember } from "../types/discordMember";
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/membertypes";
+import { MemberInfo } from "../types/discordMember";
 import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwtutil";
 
 const clientID = process.env.CLIENT_ID!;
@@ -52,7 +52,7 @@ export const getDiscordToken = async (code: string) => {
 
 // 디스코드에서 발급한 토큰으로 유저 정보 가져오기
 export const getDiscordMember = async (token: string) => {
-    const memberResponse = await axios.get<Membertypes>('https://discord.com/api/users/@me', {
+    const memberResponse = await axios.get<DiscordMember>('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${token}` },
     });
 
