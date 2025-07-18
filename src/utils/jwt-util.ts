@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/discordMember";
+import { MemberInfo } from "../types/discord-member";
 
 const jwtAccessSecret: string = process.env.JWT_ACCESS_SECRET!;
 const jwtRefreshSecret: string = process.env.JWT_REFRESH_SECRET!;
@@ -8,8 +8,8 @@ let payload:MemberInfo;
 
 export const generateAccessToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username,
-        email: member.email }
+        username: member.username
+    }
     return jwt.sign(
         payload ,
         jwtAccessSecret ,
@@ -19,8 +19,8 @@ export const generateAccessToken = (member: MemberInfo): string => {
 
 export const generateRefreshToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username,
-        email: member.email }
+        username: member.username
+    }
     return jwt.sign(
         payload,
         jwtRefreshSecret,

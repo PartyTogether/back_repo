@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppDataSource } from './data-source';
 import 'reflect-metadata';
-import oauthRouter from './router/authRouter';
+import authRouter from "./router/auth-router";
 
 const app = express()
 const PORT = process.env.PORT || 5000;
@@ -17,7 +17,7 @@ AppDataSource.initialize()
             res.send('<h1>Hello World!</h1>')
         });
 
-        app.use('/auth', oauthRouter);
+        app.use('/auth', authRouter);
 
         app.listen(PORT, () => {
             console.log(`Example app listening on port ${PORT}`)

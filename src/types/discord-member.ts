@@ -2,17 +2,18 @@
 export interface DiscordMember {
     id: string;
     username: string;
-    discriminator: string;
     avatar: string | null;
-    email?: string;
-    verified?: boolean;
-    locale?: string;
+    discriminator: string;
+    public_flags: string;
+    flags: string;
     mfa_enabled?: boolean;
+    verified?: boolean;
+    email?: string;
+    locale: string;
 }
 
 // 토큰에 저장되는 유저정보
 export interface MemberInfo {
     id: string;
     username: string;
-    email?: string;
 }
