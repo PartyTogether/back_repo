@@ -8,8 +8,8 @@ let payload:MemberInfo;
 
 export const generateAccessToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username,
-        email: member.email }
+        username: member.username
+    }
     return jwt.sign(
         payload ,
         jwtAccessSecret ,
@@ -19,8 +19,8 @@ export const generateAccessToken = (member: MemberInfo): string => {
 
 export const generateRefreshToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username,
-        email: member.email }
+        username: member.username
+    }
     return jwt.sign(
         payload,
         jwtRefreshSecret,

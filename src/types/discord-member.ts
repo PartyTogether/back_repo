@@ -16,5 +16,4 @@ export interface DiscordMember {
 export interface MemberInfo {
     id: string;
     username: string;
-    email?: string;
 }
