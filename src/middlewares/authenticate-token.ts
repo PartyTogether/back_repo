@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../utils/jwtutil";
+import { verifyAccessToken } from "../utils/jwt-util";
 
 // 사용자 토큰을 검증하고 성공 시 Token의 Payload를 req.user에 적용
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {

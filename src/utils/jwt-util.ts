@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/discordMember";
+import { MemberInfo } from "../types/discord-member";
 
 const jwtAccessSecret: string = process.env.JWT_ACCESS_SECRET!;
 const jwtRefreshSecret: string = process.env.JWT_REFRESH_SECRET!;

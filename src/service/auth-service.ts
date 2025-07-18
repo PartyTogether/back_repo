@@ -1,8 +1,13 @@
 import axios from "axios";
-import { DiscordMember } from "../types/discordMember";
+import { DiscordMember } from "../types/discord-member";
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/discordMember";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwtutil";
+import { MemberInfo } from "../types/discord-member";
+import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt-util";
+import {AppDataSource} from "../data-source";
+import {Member} from "../models/entities/member";
+import {Repository} from "typeorm";
+import {createMemberFromDiscordMember} from "../converter/auth-converter";
+
 
 const clientID = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET!;
@@ -17,13 +22,7 @@ export const getDiscordLoginUrl = (): string => {
 };
 
 // 토큰 발급 및 반환
-export const getAuthTokens = async (code: string) => {
-
-    // 디스코드에서 발급한 토큰
-    const token: string = await getDiscordToken(code);
-
-    // Discord에서 발급한 유저 정보
-    const member = await getDiscordMember(token);
+export const getAuthTokens = async (member: MemberInfo) => {
 
     // 유저 정보를 Token payload에 넣어 저장
     const accessToken: string = generateAccessToken(member);
@@ -56,6 +55,21 @@ export const getDiscordMember = async (token: string) => {
         headers: { Authorization: `Bearer ${token}` },
     });
 
+    //TODO DB에 유저 정보 저장
+    console.log("memberResponse.data : ", memberResponse.data);
+
+    // Repository Load 및 유저 데이터 저장
+    const memberRepository: Repository<Member> = AppDataSource.getRepository(Member);
+    const saveMember: DiscordMember = memberResponse.data;
+    const isExist: boolean = await memberRepository.exists({ where : { discord_id : saveMember.id }});
+    
+    // 유저 정보가 없으면 유저 정보 저장 후 로깅
+    if(!isExist)   {
+        const savedMember = await memberRepository.save(memberRepository.create(createMemberFromDiscordMember(saveMember)));
+        console.log("savedMember : ", savedMember);
+    }
+
+    // 토큰의 Payload에 저장할 User 정보 저장 및 반환
     const data = memberResponse.data;
     const member: MemberInfo = { id: data.id, username: data.username, email: data.email }
     return member;
@@ -64,7 +78,7 @@ export const getDiscordMember = async (token: string) => {
 // AccessToken 만료시 RefreshToken 으로 재발급
 export const generateNewTokens = (accessToken: string, refreshToken: string) => {
     try {
-        const member = verifyAccessToken(accessToken);
+        verifyAccessToken(accessToken);
         return {
             accessToken: accessToken,
             refreshToken: refreshToken
