@@ -1,34 +1,34 @@
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/discorduser";
+import { MemberInfo } from "../types/membertypes";
 
 const jwtAccessSecret: string = process.env.JWT_ACCESS_SECRET!;
 const jwtRefreshSecret: string = process.env.JWT_REFRESH_SECRET!;
 
+let payload:MemberInfo;
+
 export const generateAccessToken = (member: MemberInfo): string => {
+    payload = { id: member.id,
+        username: member.username,
+        email: member.email }
     return jwt.sign(
-        {
-            id: member.id,
-            username: member.username,
-            email: member.email,
-        },
-        jwtAccessSecret,
+        payload ,
+        jwtAccessSecret ,
         { expiresIn: '15m' }
     );
 };
 
 export const generateRefreshToken = (member: MemberInfo): string => {
+    payload = { id: member.id,
+        username: member.username,
+        email: member.email }
     return jwt.sign(
-        {
-            id: member.id,
-            username: member.username,
-            email: member.email,
-        },
+        payload,
         jwtRefreshSecret,
         { expiresIn: '7d' }
     );
 };
 
-// 엑세스 토큰 검증(성공시 UserPayload 타입으로 반환)
+// 엑세스 토큰 검증(성공시 MemberInfo 타입으로 반환)
 export const verifyAccessToken = (token: string) => {
     try {
         return jwt.verify(token, jwtAccessSecret) as MemberInfo;

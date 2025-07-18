@@ -1,5 +1,5 @@
 // 디스코드 로그인 유저 타입
-export interface DiscordUser {
+export interface Membertypes {
     id: string;
     username: string;
     discriminator: string;

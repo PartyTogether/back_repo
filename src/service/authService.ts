@@ -1,7 +1,7 @@
 import axios from "axios";
-import { DiscordUser } from "../types/discorduser";
+import { Membertypes } from "../types/membertypes";
 import jwt from "jsonwebtoken";
-import { MemberInfo } from "../types/discorduser";
+import { MemberInfo } from "../types/membertypes";
 import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwtutil";
 
 const clientID = process.env.CLIENT_ID!;
@@ -23,7 +23,7 @@ export const getAuthTokens = async (code: string) => {
     const token: string = await getDiscordToken(code);
 
     // Discord에서 발급한 유저 정보
-    const member = await getDiscordUser(token);
+    const member = await getDiscordMember(token);
 
     // 유저 정보를 Token payload에 넣어 저장
     const accessToken: string = generateAccessToken(member);
@@ -51,8 +51,8 @@ export const getDiscordToken = async (code: string) => {
 }
 
 // 디스코드에서 발급한 토큰으로 유저 정보 가져오기
-export const getDiscordUser = async (token: string) => {
-    const memberResponse = await axios.get<DiscordUser>('https://discord.com/api/users/@me', {
+export const getDiscordMember = async (token: string) => {
+    const memberResponse = await axios.get<Membertypes>('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -64,7 +64,7 @@ export const getDiscordUser = async (token: string) => {
 // AccessToken 만료시 RefreshToken 으로 재발급
 export const generateNewTokens = (accessToken: string, refreshToken: string) => {
     try {
-        const user = verifyAccessToken(accessToken);
+        const member = verifyAccessToken(accessToken);
         return {
             accessToken: accessToken,
             refreshToken: refreshToken
@@ -74,10 +74,10 @@ export const generateNewTokens = (accessToken: string, refreshToken: string) => 
         if (err instanceof jwt.TokenExpiredError) {
             // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
             try {
-                const user = verifyRefreshToken(refreshToken);
+                const member = verifyRefreshToken(refreshToken);
                 // 재발급
-                const newAccessToken = generateAccessToken(user);
-                const newRefreshToken = generateRefreshToken(user);
+                const newAccessToken = generateAccessToken(member);
+                const newRefreshToken = generateRefreshToken(member);
                 return {
                     accessToken: newAccessToken,
                     refreshToken: newRefreshToken,
