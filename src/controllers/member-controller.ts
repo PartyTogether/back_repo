@@ -6,8 +6,9 @@ import {
     getDiscordLoginUrl,
     getDiscordMember,
     getDiscordToken
-} from "../service/auth-service";
+} from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
+
 
 const app = express();
 

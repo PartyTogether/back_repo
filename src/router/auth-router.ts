@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import {discordCallback, discordLogin, refreshTokens} from "../controller/member-controller";
+import {discordCallback, discordLogin, refreshTokens} from "../controllers/member-controller";
 
 const router = express.Router();
 
