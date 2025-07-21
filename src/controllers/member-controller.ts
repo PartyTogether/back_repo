@@ -1,6 +1,14 @@
 import express, { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import {generateNewTokens, getAuthTokens, getDiscordLoginUrl} from "../services/authService";
+import {
+    generateNewTokens,
+    getAuthTokens,
+    getDiscordLoginUrl,
+    getDiscordMember,
+    getDiscordToken
+} from "../services/auth-service";
+import {MemberInfo} from "../types/discord-member";
+
 
 const app = express();
 
@@ -18,9 +26,15 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
         res.status(400).send("코드가 없습니다.");
         return;
     }
+    
+    // Discord 멤버 정보를 요청하기 위한 토큰 발급
+    const token: string = await getDiscordToken(code);
+
+    // Discord에서 발급한 유저 정보
+    const member: MemberInfo = await getDiscordMember(token);
 
     try {
-        const { accessToken, refreshToken } = await getAuthTokens(code);
+        const { accessToken, refreshToken } = await getAuthTokens(member);
 
         // ✅ 쿠키에 JWT 저장 (HttpOnly 설정)
         res.cookie('access_token', accessToken, {

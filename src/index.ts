@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppDataSource } from './data-source';
 import 'reflect-metadata';
-import oauthRouter from './router/authRouter';
+import oauthRouter from './router/auth-router';
 import continentRouter from './router/continent-router';
 import cors from 'cors';
 
