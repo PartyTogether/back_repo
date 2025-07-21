@@ -4,6 +4,7 @@ dotenv.config();
 import { AppDataSource } from './data-source';
 import 'reflect-metadata';
 import oauthRouter from './router/authRouter';
+import continentRouter from './router/continent-router';
 
 const app = express()
 const PORT = process.env.PORT || 5000;
@@ -13,12 +14,9 @@ AppDataSource.initialize()
     .then(() => {
         console.log('DB 연결 성공');
 
-        app.get('/', (req: Request, res: Response) => {
-            res.send('<h1>Hello World!</h1>')
-        });
-
         app.use('/auth', oauthRouter);
 
+        app.use('/api/continents',continentRouter);
         app.listen(PORT, () => {
             console.log(`Example app listening on port ${PORT}`)
         });

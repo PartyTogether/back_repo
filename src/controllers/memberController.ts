@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import {generateNewTokens, getAuthTokens, getDiscordLoginUrl} from "../service/authService";
+import {generateNewTokens, getAuthTokens, getDiscordLoginUrl} from "../services/authService";
 
 const app = express();
 
