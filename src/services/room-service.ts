@@ -1,3 +1,5 @@
+/// <reference path="../types/express/index.d.ts" />
+
 import { Request } from 'express';
 import { RoomCreateReq } from "../dto/room-create-req";
 import { ClientError } from "../error/client-error";
