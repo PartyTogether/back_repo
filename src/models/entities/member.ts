@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn} from 'typeorm';
 import {Job} from "./job";
 import {Applicant} from "./applicant";
 import {application} from "express";
 import {Bookmark} from "./bookmark";
 import {MemberSkill} from "./member-skill";
 import {Room} from "./room";
+import {RoomPosition} from "./room-position";
 
 @Entity()
 export class Member{
@@ -46,6 +47,9 @@ export class Member{
 
     @ManyToOne(() => Room, (room) => room.members)
     room!: Room;
+
+    @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.member)
+    roomPositions!: RoomPosition[];
 
     @ManyToOne(() => Job, (job) => job.members)
     job!: Job;

@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn
 import {HuntingGround} from "./hunting-ground";
 import {Applicant} from "./applicant";
 import {Member} from "./member";
+import {RoomPosition} from "./room-position";
 
 @Entity()
 export class Room{
@@ -38,4 +39,7 @@ export class Room{
 
     @OneToMany(() => Member, (member) => member.room)
     members!: Member[];
+
+    @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.room)
+    roomPositions!: RoomPosition[];
 }
