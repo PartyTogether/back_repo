@@ -81,9 +81,9 @@ export const generateNewTokens = (accessToken: string, refreshToken: string) => 
             accessToken: accessToken,
             refreshToken: refreshToken
         }
-    } catch (err)   {
+    } catch (accessErr)   {
         // 만료 여부 체크
-        if (err instanceof jwt.TokenExpiredError) {
+        if (accessErr instanceof jwt.TokenExpiredError) {
             // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
             try {
                 const member = verifyRefreshToken(refreshToken);
@@ -96,11 +96,15 @@ export const generateNewTokens = (accessToken: string, refreshToken: string) => 
                 };
             } catch (refreshErr) {
                 // RefreshToken도 유효하지 않을 경우
-                throw new Error("Refresh Token이 유효하지 않습니다. 다시 로그인하세요.");
+                if(refreshErr instanceof jwt.TokenExpiredError) {
+                    throw new Error("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
+                } else {
+                    throw refreshErr;
+                }
             }
         } else {
             // AccessToken이 만료된 게 아니라 다른 오류
-            throw err;
+            throw accessErr;
         }
     }
 }

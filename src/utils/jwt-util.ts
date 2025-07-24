@@ -33,13 +33,7 @@ export const verifyAccessToken = (token: string) => {
     try {
         return jwt.verify(token, jwtAccessSecret) as MemberInfo;
     } catch (err) {
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new Error('토큰이 만료되었습니다.');
-        } else if (err instanceof jwt.JsonWebTokenError) {
-            throw new Error('유효하지 않은 토큰입니다.');
-        } else {
-            throw err;
-        }
+        throw err;
     }
 }
 
@@ -48,12 +42,6 @@ export const verifyRefreshToken = (token: string) => {
     try {
         return jwt.verify(token, jwtRefreshSecret) as MemberInfo;
     } catch (err) {
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new Error('토큰이 만료되었습니다.');
-        } else if (err instanceof jwt.JsonWebTokenError) {
-            throw new Error('유효하지 않은 토큰입니다.');
-        } else {
-            throw err;
-        }
+        throw err;
     }
 }
