@@ -10,7 +10,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // 토큰 없을 시
     if (!token) {
-        return res.status(411).json({ message: "Access Token이 없습니다." });
+        res.status(411).json({ message: "Access Token이 없습니다." });
     }
 
     try {
@@ -24,13 +24,13 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
         // 해당 유저가 존재하는지 확인
         if(!isExist)    {
-            return res.status(403).json({ message : "유저가 존재하지 않습니다." });
+            res.status(403).json({ message : "유저가 존재하지 않습니다." });
         }
 
         // 다음 MiddleWare에서 요청 Member의 정보를 사용할 수 있도록 정보 저장
         req.member = getMemberByToken;
         next();
     } catch (err) {
-        return res.status(403).json({ message: "유효하지 않은 Access Token입니다." });
+        res.status(403).json({ message: "유효하지 않은 Access Token입니다." });
     }
 };
