@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn} from 'typeorm';
 import { HuntingGroundType } from './hunting-ground-type';
 import {Continent} from "./continent";
 import {Room} from "./room";
 import {Bookmark} from "./bookmark";
+import {HuntingPosition} from "./hunting-position";
 
 @Entity()
 export class HuntingGround{
@@ -23,6 +24,7 @@ export class HuntingGround{
     type!: string;         // 사냥터 타입
 
     @ManyToOne(() => Continent, (continent) => continent.huntingGrounds)
+    @JoinColumn({name:'continent_id'})
     continent!: Continent;
 
     @OneToMany(() => Room, (room) => room.huntingGround)
@@ -30,4 +32,7 @@ export class HuntingGround{
 
     @OneToMany(() => Bookmark, (bookmark) => bookmark.member)
     bookmarks!: Bookmark[];
+
+    @OneToOne(() => HuntingPosition, (huntingPosition) => huntingPosition.huntingGround)
+    huntingPosition!: HuntingPosition;
 }

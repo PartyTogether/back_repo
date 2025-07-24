@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn
 import {HuntingGround} from "./hunting-ground";
 import {Applicant} from "./applicant";
 import {Member} from "./member";
+import {RoomPosition} from "./room-position";
 
 @Entity()
 export class Room{
@@ -31,6 +32,7 @@ export class Room{
     desc!: string;       // 설명
 
     @ManyToOne(() => HuntingGround, (huntingGround) => huntingGround.rooms)
+    @JoinColumn({name:'hunting_ground_id'})
     huntingGround!: HuntingGround;
 
     @OneToMany(() => Applicant,(applicant) => applicant.room)
@@ -38,4 +40,7 @@ export class Room{
 
     @OneToMany(() => Member, (member) => member.room)
     members!: Member[];
+
+    @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.room)
+    roomPositions!: RoomPosition[];
 }
