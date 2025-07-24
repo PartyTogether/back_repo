@@ -32,6 +32,7 @@ export class Room{
     desc!: string;       // 설명
 
     @ManyToOne(() => HuntingGround, (huntingGround) => huntingGround.rooms)
+    @JoinColumn({name:'hunting_ground_id'})
     huntingGround!: HuntingGround;
 
     @OneToMany(() => Applicant,(applicant) => applicant.room)

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from 'typeorm';
 import {Member} from "./member";
 import {Room} from "./room";
 
@@ -8,9 +8,11 @@ export class Applicant{
     id!: string;
 
     @ManyToOne(() => Member, (member) => member.applicants)
+    @JoinColumn({name:'member_id'})
     member!: Member;
 
     @ManyToOne(() => Room, (room) => room.applicants)
+    @JoinColumn({name:'room_id'})
     room!: Room;
 
 }

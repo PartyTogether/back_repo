@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn} from 'typeorm';
 import {Job} from "./job";
 import {MemberSkill} from "./member-skill";
 
@@ -17,6 +17,7 @@ export class Skill{
     image!: string;
 
     @ManyToOne(() => Job, (job) => job.skills)
+    @JoinColumn({name:'job_id'})
     job!: Job;
 
     @OneToMany(() => MemberSkill, (memberSkill) => memberSkill.skill)

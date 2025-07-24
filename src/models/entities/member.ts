@@ -46,12 +46,14 @@ export class Member{
     nickname!: string;        // 사용자 닉네임
 
     @ManyToOne(() => Room, (room) => room.members)
+    @JoinColumn({name:'room_id'})
     room!: Room;
 
     @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.member)
     roomPositions!: RoomPosition[];
 
     @ManyToOne(() => Job, (job) => job.members)
+    @JoinColumn({name:'job_id'})
     job!: Job;
 
     @OneToMany(() => MemberSkill,(memberSkill) => memberSkill.member)

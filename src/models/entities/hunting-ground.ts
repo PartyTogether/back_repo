@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn} from 'typeorm';
 import { HuntingGroundType } from './hunting-ground-type';
 import {Continent} from "./continent";
 import {Room} from "./room";
@@ -24,6 +24,7 @@ export class HuntingGround{
     type!: string;         // 사냥터 타입
 
     @ManyToOne(() => Continent, (continent) => continent.huntingGrounds)
+    @JoinColumn({name:'continent_id'})
     continent!: Continent;
 
     @OneToMany(() => Room, (room) => room.huntingGround)

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn} from 'typeorm';
 import {Skill} from "./skill";
 import {Member} from "./member";
 
@@ -11,8 +11,10 @@ export class MemberSkill{
     level!: number;
 
     @ManyToOne(() => Skill,(skill) => skill.memberSkills)
+    @JoinColumn({name:'skill_id'})
     skill!: Skill;
 
     @ManyToOne(() => Member,(member) => member.memberSkills)
+    @JoinColumn({name:'member_id'})
     member!: Member;
 }
