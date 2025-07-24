@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, IsString, Length, MaxLength} from 'class-validator';
+import {IsNotEmpty, IsNumber, IsString, Length, Max, MaxLength, Min} from 'class-validator';
 
 export class RoomCreateReq {
     @IsString()
@@ -11,9 +11,12 @@ export class RoomCreateReq {
     roomDesc!: string;
 
     @IsNumber()
+    @Min(0)
     roomMinLevel!: number;
 
     @IsNumber()
+    @Min(2)
+    @Max(6)
     roomMaxMembers!: number;
 
     @IsString()
