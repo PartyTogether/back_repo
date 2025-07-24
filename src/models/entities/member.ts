@@ -4,6 +4,7 @@ import {Applicant} from "./applicant";
 import {application} from "express";
 import {Bookmark} from "./bookmark";
 import {MemberSkill} from "./member-skill";
+import {Room} from "./room";
 
 @Entity()
 export class Member{
@@ -42,6 +43,9 @@ export class Member{
 
     @Column({name:'member_nickname', nullable:true})
     nickname!: string;        // 사용자 닉네임
+
+    @ManyToOne(() => Room, (room) => room.members)
+    room!: Room;
 
     @ManyToOne(() => Job, (job) => job.members)
     job!: Job;

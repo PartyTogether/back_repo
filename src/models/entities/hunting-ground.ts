@@ -9,7 +9,7 @@ export class HuntingGround{
     @PrimaryGeneratedColumn('uuid',{name:'hunting_ground_id'})
     id!: string;
 
-    @Column({name:'hunting_ground_name'})
+    @Column({name:'hunting_ground_name', unique:true})
     name!: string;        // 사냥터 이름
 
     @Column({name:'hunting_ground_rec_level'})
