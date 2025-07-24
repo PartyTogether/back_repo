@@ -7,6 +7,8 @@ import { roomRepository } from "../repositories/room-repository";
 import { memberRepository } from "../repositories/member-repository";
 import { huntingGroundRepository } from "../repositories/hunting-ground-repository";
 import { AppDataSource } from '../data-source';
+import {RoomMetaRes} from "../dto/room-meta-res";
+import {continentRepository} from "../repositories/continent-repository";
 
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
@@ -50,4 +52,24 @@ export const createRoom = async (req: Request) => {
         member.room = newRoom;
         await memberRepo.save(member);
     });
+};
+
+export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
+    const continents = await continentRepository.getAllContinentsWithGrounds();
+
+    return continents.map(continent => ({
+        continentName: continent.name,
+        continentImage: continent.image,
+        huntingGrounds: continent.huntingGrounds.map(hg => ({
+            huntingGroundName: hg.name,
+            positions: [
+                hg.huntingPosition?.huntingPosition1,
+                hg.huntingPosition?.huntingPosition2,
+                hg.huntingPosition?.huntingPosition3,
+                hg.huntingPosition?.huntingPosition4,
+                hg.huntingPosition?.huntingPosition5,
+                hg.huntingPosition?.huntingPosition6,
+            ].filter(Boolean),
+        })),
+    }));
 };
