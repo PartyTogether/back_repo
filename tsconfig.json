@@ -9,7 +9,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*",
+  "include": [
+    "src/**/*",
+    "src/types/**/*.ts",
     "env.d.ts"
-  ]  // 또는 env.d.ts 위치에 맞게 조정
+  ]
 }

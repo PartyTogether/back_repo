@@ -1,9 +1,7 @@
 import { MemberInfo } from "../discord-member";
 
-declare global {
-    namespace Express {
-        interface Request {
-            member: MemberInfo;
-        }
+declare module 'express-serve-static-core' {
+    interface Request {
+        member: MemberInfo;
     }
 }
