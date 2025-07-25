@@ -1,4 +1,4 @@
-import express from "express";
+import express , { Request, Response } from "express";
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppDataSource } from './data-source';
@@ -24,6 +24,7 @@ AppDataSource.initialize()
             credentials: true,
         }));
         // 그다음 쿠키parser및  request.body를 받기위한 세팅
+        app.use('/auth', oauthRouter);
         app.use(express.json());
         app.use(cookieParser());
 

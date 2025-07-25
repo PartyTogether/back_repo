@@ -2,7 +2,13 @@ import axios from "axios";
 import { DiscordMember } from "../types/discord-member";
 import jwt from "jsonwebtoken";
 import { MemberInfo } from "../types/discord-member";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt-util";
+import {
+    generateAccessToken,
+    generateRefreshToken, getRefreshTokenInRedis,
+    saveRefreshTokenInRedis,
+    verifyAccessToken,
+    verifyRefreshToken
+} from "../utils/jwt-util";
 import {AppDataSource} from "../data-source";
 import {Member} from "../models/entities/member";
 import {Repository} from "typeorm";
@@ -27,6 +33,9 @@ export const getAuthTokens = async (member: MemberInfo) => {
     // 유저 정보를 Token payload에 넣어 저장
     const accessToken: string = generateAccessToken(member);
     const refreshToken: string = generateRefreshToken(member);
+
+    // redis에 RefreshToken 저장
+    await saveRefreshTokenInRedis(member.id, refreshToken);
 
     return { accessToken, refreshToken };
 };
@@ -74,7 +83,7 @@ export const getDiscordMember = async (token: string) => {
 }
 
 // AccessToken 만료시 RefreshToken 으로 재발급
-export const generateNewTokens = (accessToken: string, refreshToken: string) => {
+export const generateNewTokens = async (accessToken: string, refreshToken: string) => {
     try {
         verifyAccessToken(accessToken);
         return {
@@ -87,6 +96,11 @@ export const generateNewTokens = (accessToken: string, refreshToken: string) => 
             // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
             try {
                 const member = verifyRefreshToken(refreshToken);
+                const redisToken = await getRefreshTokenInRedis(member.id);
+                if (redisToken !== refreshToken) {
+                    // 일치하지 않으면 예외 발생
+                    throw new Error("Refresh Token이 유효하지 않습니다.");
+                }
                 // 재발급
                 const newAccessToken = generateAccessToken(member);
                 const newRefreshToken = generateRefreshToken(member);
@@ -95,12 +109,17 @@ export const generateNewTokens = (accessToken: string, refreshToken: string) => 
                     refreshToken: newRefreshToken,
                 };
             } catch (refreshErr) {
-                // RefreshToken도 유효하지 않을 경우
-                throw new Error("Refresh Token이 유효하지 않습니다. 다시 로그인하세요.");
+                // RefreshToken도 만료되었을 경우
+                if(refreshErr instanceof jwt.TokenExpiredError) {
+                    throw new Error("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
+                } else {
+                    throw refreshErr;
+                }
             }
         } else {
             // AccessToken이 만료된 게 아니라 다른 오류
-            throw err;
+            throw accessErr;
+            }
         }
     }
 }
