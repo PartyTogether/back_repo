@@ -61,7 +61,7 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
 });
 
 // AccessToken 만료시 RefreshToken과 함께 재발급
-export const refreshTokens = (req: Request, res: Response) => {
+export const refreshTokens = async (req: Request, res: Response) => {
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
 
@@ -70,22 +70,28 @@ export const refreshTokens = (req: Request, res: Response) => {
         return;
     }
 
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateNewTokens(accessToken, refreshToken);
+    try {
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateNewTokens(accessToken, refreshToken);
 
-    res.cookie('access_token', newAccessToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 15 * 60 * 1000
-    });
+        res.cookie('access_token', newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 15 * 60 * 1000
+        });
 
-    res.cookie('refresh_token', newRefreshToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+        res.cookie('refresh_token', newRefreshToken, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
-    console.log("발급된 access_token : ", accessToken);
-    console.log("발급된 refresh_token : ", refreshToken);
+        console.log("발급된 access_token : ", accessToken);
+        console.log("발급된 refresh_token : ", refreshToken);
 
-    res.redirect(process.env.BASE_URL!);
+        res.redirect(process.env.BASE_URL!);
+
+    } catch(err)    {
+        res.status(420).send({ message : "RefreshToken에 문제가 있습니다. 다시 로그인하세요."});
+    }
+
 }
