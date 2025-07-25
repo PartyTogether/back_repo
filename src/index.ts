@@ -27,6 +27,7 @@ AppDataSource.initialize()
         app.use(express.json());
         app.use(cookieParser());
 
+
         // 라우터들
         app.use('/auth', oauthRouter);
         app.use('/api/room',roomRouter);
