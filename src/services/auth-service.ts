@@ -90,9 +90,9 @@ export const generateNewTokens = async (accessToken: string, refreshToken: strin
             accessToken: accessToken,
             refreshToken: refreshToken
         }
-    } catch (accessErr)   {
+    } catch (err)   {
         // 만료 여부 체크
-        if (accessErr instanceof jwt.TokenExpiredError) {
+        if (err instanceof jwt.TokenExpiredError) {
             // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
             try {
                 const member = verifyRefreshToken(refreshToken);
@@ -119,6 +119,7 @@ export const generateNewTokens = async (accessToken: string, refreshToken: strin
         } else {
             // AccessToken이 만료된 게 아니라 다른 오류
             throw accessErr;
+            }
         }
     }
 }
