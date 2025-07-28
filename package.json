@@ -9,7 +9,8 @@
     "seed:continent": "ts-node src/seed/seed-continent.ts",
     "seed:hunting-ground": "ts-node src/seed/seed-hunting-ground.ts",
     "seed:job": "ts-node src/seed/seed-job.ts",
-    "seed:skill": "ts-node src/seed/seed-skill.ts"
+    "seed:skill": "ts-node src/seed/seed-skill.ts",
+    "seed:hunting-position": "ts-node src/seed/seed-hunting-position.ts"
   },
   "keywords": [],
   "author": "",
