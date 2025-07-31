@@ -13,6 +13,9 @@ export class RoomPosition{
     @Column({name:'room_position_status'})
     status!:string;
 
+    @Column({name:'room_position_comment'})
+    comment!:string;
+
     @ManyToOne(() => Room, (room) => room.roomPositions)
     @JoinColumn({name:'room_id'})
     room!: Room;
