@@ -4,6 +4,6 @@ import {authenticateToken} from "../middlewares/authenticate-token";
 
 const router = express.Router();
 
-router.post('/create',authenticateToken,createRoomController);
+router.post('/create',authenticateToken ,createRoomController);
 
 export default router;
