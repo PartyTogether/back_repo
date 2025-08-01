@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, IsString, Length, Max, MaxLength, Min} from 'class-validator';
+import {IsArray, IsNotEmpty, IsNumber, IsObject, IsString, Max, MaxLength, Min} from 'class-validator';
 
 export class RoomCreateReq {
     @IsString()
@@ -29,4 +29,15 @@ export class RoomCreateReq {
     @IsString()
     @IsNotEmpty()
     roomHuntingGround!: string;
+
+    @IsArray()
+    @IsString({ each: true })
+    roomPositions!: string[];
+
+    @IsObject()
+    roomPositionComments!: Record<string, string>;
+
+    @IsString()
+    @IsNotEmpty()
+    hostPosition!: string;
 }

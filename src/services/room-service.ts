@@ -1,4 +1,3 @@
-/// <reference path="../types/express/index.d.ts" />
 
 import { Request } from 'express';
 import { RoomCreateReq } from "../dto/room-create-req";
@@ -10,6 +9,8 @@ import { AppDataSource } from '../data-source';
 import {RoomMetaRes} from "../dto/room-meta-res";
 import {continentRepository} from "../repositories/continent-repository";
 
+import { roomPositionRepository } from "../repositories/room-position-repository";
+
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
     const roomData = req.body as RoomCreateReq;
@@ -18,6 +19,7 @@ export const createRoom = async (req: Request) => {
         const roomRepo = transactionalEntityManager.withRepository(roomRepository);
         const memberRepo = transactionalEntityManager.withRepository(memberRepository);
         const hgRepo = transactionalEntityManager.withRepository(huntingGroundRepository);
+        const roomPositionRepo = transactionalEntityManager.withRepository(roomPositionRepository);
 
         const member = await memberRepo.findOne({ where: { discord_id: memberId }, relations: ['room'] });
         if (!member) {
@@ -36,6 +38,7 @@ export const createRoom = async (req: Request) => {
             throw new ClientError(400,"최소 레벨은 200을 초과할 수 없습니다.");
         }
 
+        // 방생성
         const newRoom = roomRepo.create({
             host: member,
             title: roomData.roomTitle,
@@ -48,6 +51,21 @@ export const createRoom = async (req: Request) => {
         });
 
         await roomRepo.save(newRoom);
+
+        // 방에 대한 사냥터 자리
+        for (const position of roomData.roomPositions) {
+            const comment = roomData.roomPositionComments[position] || "";
+            const isHostPosition = position === roomData.hostPosition;
+
+            const newPosition = roomPositionRepo.create({
+                name: position,
+                comment: comment,
+                room: newRoom,
+                status: isHostPosition ? '모집완료' : '모집중',
+                member: isHostPosition ? member : undefined,
+            });
+            await roomPositionRepo.save(newPosition);
+        }
 
         member.room = newRoom;
         await memberRepo.save(member);
@@ -73,3 +91,4 @@ export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
         })),
     }));
 };
+""
