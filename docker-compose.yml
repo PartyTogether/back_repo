@@ -24,5 +24,16 @@ services:
     ports:
       - "8080:8080"
 
+  # ✅ Redis 추가 (6100 포트로 외부 연결)
+  redis:
+    image: redis:7.2  # 또는 latest
+    container_name: matu_redis
+    restart: always
+    ports:
+      - "6100:6379"   # 외부는 6100, 내부는 기본 6379
+    volumes:
+      - redis_data:/data
+
 volumes:
   mysql_data:
+  redis_data:
