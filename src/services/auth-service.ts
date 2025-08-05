@@ -82,43 +82,36 @@ export const getDiscordMember = async (token: string) => {
     return member;
 }
 
-// AccessToken 만료시 RefreshToken 으로 재발급
-export const generateNewTokens = async (accessToken: string, refreshToken: string) => {
+// AccessToken 만료시 RefreshToken 검증 및 재발급
+export const generateNewTokens = async (refreshToken: string) => {
     try {
-        verifyAccessToken(accessToken);
-        return {
-            accessToken: accessToken,
-            refreshToken: refreshToken
+        const member: MemberInfo = verifyRefreshToken(refreshToken);
+
+        const redisToken = await getRefreshTokenInRedis(member.id);
+        if (redisToken !== refreshToken) {
+            // 일치하지 않으면 예외 발생
+            throw new Error("Refresh Token이 유효하지 않습니다.");
         }
+
+        // refreshToken에 문제 없을 시 새로운 토큰 발행
+        const newAccessToken = generateAccessToken(member);
+        const newRefreshToken = generateRefreshToken(member);
+
+        await saveRefreshTokenInRedis(member.id, newRefreshToken);
+
+        return {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+            member
+        };
     } catch (err) {
         // 만료 여부 체크
         if (err instanceof jwt.TokenExpiredError) {
-            // AccessToken 만료 → RefreshToken 검증 및 재발급 진행
-            try {
-                const member = verifyRefreshToken(refreshToken);
-                const redisToken = await getRefreshTokenInRedis(member.id);
-                if (redisToken !== refreshToken) {
-                    // 일치하지 않으면 예외 발생
-                    throw new Error("Refresh Token이 유효하지 않습니다.");
-                }
-                // 재발급
-                const newAccessToken = generateAccessToken(member);
-                const newRefreshToken = generateRefreshToken(member);
-                return {
-                    accessToken: newAccessToken,
-                    refreshToken: newRefreshToken,
-                };
-            } catch (refreshErr) {
-                // RefreshToken도 만료되었을 경우
-                if (refreshErr instanceof jwt.TokenExpiredError) {
-                    throw new Error("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
-                } else {
-                    throw refreshErr;
-                }
-            }
+            // refreshToken 만료 되었을 시 에러 처리
+            throw new Error("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
         } else {
-            // AccessToken이 만료된 게 아니라 다른 오류
-            throw err;
+            // refreshToken이 만료된 게 아니라 다른 오류
+            throw new Error("Refresh Token이 만료된게 아닌 다른 에러가 존재합니다. --> " + err);
         }
     }
 }
