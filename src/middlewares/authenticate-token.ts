@@ -13,7 +13,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // 토큰 없을 시
     if (!accessToken || !refreshToken) {
-        res.status(411).json({ message: "Token이 없습니다." });
+        res.status(401).json({ message: "Token이 없습니다." });
     }
 
     try {
@@ -36,20 +36,34 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     } catch (err) {
         // AccessToken이 만료되서 예외처리가 될 경우
         console.log("Token Err? : ", err);
+
         if(err instanceof jwt.TokenExpiredError)    {
             console.log("토큰 만료됨");
 
-            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateNewTokens(accessToken, refreshToken);
-            req.cookies.access_token = newAccessToken;
-            req.cookies.refresh_token = newRefreshToken;
+            try {
+                const {
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken,
+                    member
+                } = await generateNewTokens(refreshToken);
 
-            const newMember:MemberInfo = verifyAccessToken(newAccessToken);
-            req.member = newMember;
+                req.cookies.access_token = newAccessToken;
+                req.cookies.refresh_token = newRefreshToken;
 
-            // redis에 RefreshToken 저장
-            await saveRefreshTokenInRedis(newMember.id, refreshToken);
-            next();
+                const newMember: MemberInfo = verifyAccessToken(newAccessToken);
+                req.member = member;
+
+                // redis에 RefreshToken 저장
+                await saveRefreshTokenInRedis(newMember.id, refreshToken);
+
+                next();
+            } catch (refreshErr)   {
+                console.log("RefreshErr : ", refreshErr);
+                res.status(401).json({ message : "유효하지 않은 토큰입니다 -> " + refreshErr });
+                res.clearCookie("access_token", { httpOnly: true, secure: true, sameSite: "strict" });
+                res.clearCookie("refresh_token", { httpOnly: true, secure: true, sameSite: "strict" });
+                res.redirect(process.env.BASE_URL!);
+            }
         }
-        res.status(401).json({ message : "유효하지 않은 토큰입니다." });
     }
 };
