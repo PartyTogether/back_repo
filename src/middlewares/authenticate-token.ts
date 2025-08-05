@@ -13,7 +13,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // 토큰 없을 시
     if (!accessToken || !refreshToken) {
-        res.status(411).json({ message: "Token이 없습니다." });
+        res.status(401).json({ message: "Token이 없습니다." });
     }
 
     try {
