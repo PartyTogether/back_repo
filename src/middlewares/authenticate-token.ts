@@ -60,6 +60,9 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             } catch (refreshErr)   {
                 console.log("RefreshErr : ", refreshErr);
                 res.status(401).json({ message : "유효하지 않은 토큰입니다 -> " + refreshErr });
+                res.clearCookie("access_token", { httpOnly: true, secure: true, sameSite: "strict" });
+                res.clearCookie("refresh_token", { httpOnly: true, secure: true, sameSite: "strict" });
+                res.redirect(process.env.BASE_URL!);
             }
         }
     }
