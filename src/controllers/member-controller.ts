@@ -59,6 +59,13 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
     }
 });
 
+export const authMe = (req: Request, res: Response) => {
+    if(req.member)  {
+        res.status(200).send(" 요청한 클라이언트 정보 : " + req.member);
+        res.json({ member : req.member });
+    }
+}
+
 // // AccessToken 만료시 RefreshToken과 함께 재발급
 // export const refreshTokens = async (req: Request, res: Response) => {
 //     const accessToken = req.cookies.accessToken;
