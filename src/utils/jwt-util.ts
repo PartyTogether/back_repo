@@ -63,6 +63,7 @@ export const getRefreshTokenInRedis = async (userId: string): Promise<String | n
 
 // Redis에 있는 RefreshToken DELETE
 export const deleteRefreshTokenInRedis = async (userId: string)=> {
+    console.log(`refresh:${userId}`);
     const client = await getRedisClient();
     return await client.del(`refresh:${userId}`);
 };

@@ -7,6 +7,7 @@ import {
     getDiscordToken
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
+import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
 
 
 const app = express();
@@ -38,13 +39,19 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
         // ✅ 쿠키에 JWT 저장 (HttpOnly 설정)
         res.cookie('access_token', accessToken, {
             httpOnly: true,
-            secure: false,
-            maxAge: 15 * 60 * 1000
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
-            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        res.cookie('auth_status', true, {
+            httpOnly: false,
+            sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -58,6 +65,27 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
         res.status(500).send("Discord 인증 실패");
     }
 });
+
+export const authMe = (req: Request, res: Response) => {
+    console.log("req.member : ", req.member);
+    if(req.member)  {
+        res.status(200).send(req.member);
+    }
+}
+
+export const authLogout  = async (req: Request, res: Response) => {
+    try {
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+        res.clearCookie('auth_status');
+
+        await deleteRefreshTokenInRedis(req.member.id);
+
+        res.redirect(process.env.BASE_URL!);
+    } catch(err)    {
+        res.status(500).json({ message : "로그아웃에 실패하였습니다 --> " + err});
+    }
+};
 
 // // AccessToken 만료시 RefreshToken과 함께 재발급
 // export const refreshTokens = async (req: Request, res: Response) => {
