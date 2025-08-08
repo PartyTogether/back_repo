@@ -10,7 +10,7 @@ import cors from 'cors';
 import {errorHandler} from "./middlewares/error-handler";
 import cookieParser from 'cookie-parser';
 
-const app = express()
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 실행시 DB 연결 및 라우터 설정
@@ -24,16 +24,13 @@ AppDataSource.initialize()
             credentials: true,
         }));
         // 그다음 쿠키parser및  request.body를 받기위한 세팅
-        app.use('/auth', oauthRouter);
         app.use(express.json());
         app.use(cookieParser());
-
 
         // 라우터들
         app.use('/auth', oauthRouter);
         app.use('/api/room',roomRouter);
         app.use('/api/continents',continentRouter);
-
 
         app.use(errorHandler);
 

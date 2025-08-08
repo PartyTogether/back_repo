@@ -47,8 +47,21 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
                     member
                 } = await generateNewTokens(refreshToken);
 
-                req.cookies.access_token = newAccessToken;
-                req.cookies.refresh_token = newRefreshToken;
+                res.cookie('access_token', newAccessToken, {
+                    httpOnly: true,
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7일
+                });
+                res.cookie('refresh_token', newRefreshToken, {
+                    httpOnly: true,
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7일
+                });
+                res.cookie('auth_status', true, {
+                    httpOnly: false,
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000 // 7일
+                })
 
                 const newMember: MemberInfo = verifyAccessToken(newAccessToken);
                 req.member = member;
@@ -60,8 +73,9 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             } catch (refreshErr)   {
                 console.log("RefreshErr : ", refreshErr);
                 res.status(401).json({ message : "유효하지 않은 토큰입니다 -> " + refreshErr });
-                res.clearCookie("access_token", { httpOnly: true, secure: true, sameSite: "strict" });
-                res.clearCookie("refresh_token", { httpOnly: true, secure: true, sameSite: "strict" });
+                res.clearCookie("access_token");
+                res.clearCookie("refresh_token");
+                res.clearCookie("auth_status");
                 res.redirect(process.env.BASE_URL!);
             }
         }

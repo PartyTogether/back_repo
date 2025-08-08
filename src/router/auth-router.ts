@@ -1,13 +1,15 @@
-import express, { Request, Response } from "express";
-import {authMe, discordCallback, discordLogin} from "../controllers/member-controller";
+import { Router } from "express";
+import {authLogout, authMe, discordCallback, discordLogin} from "../controllers/member-controller";
 import {authenticateToken} from "../middlewares/authenticate-token";
 
-const router = express.Router();
+const router = Router();
 
 router.get('/discord', discordLogin);
 
 router.get('/discord/callback', discordCallback);
 
-router.get('/auth/me', authenticateToken, authMe);
+router.get('/me', authenticateToken, authMe);
+
+router.get('/logout', authenticateToken, authLogout);
 
 export default router;
