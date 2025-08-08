@@ -9,8 +9,7 @@
     "seed:continent": "ts-node src/seed/seed-continent.ts",
     "seed:hunting-ground": "ts-node src/seed/seed-hunting-ground.ts",
     "seed:job": "ts-node src/seed/seed-job.ts",
-    "seed:skill": "ts-node src/seed/seed-skill.ts",
-    "seed:hunting-position": "ts-node src/seed/seed-hunting-position.ts"
+    "seed:skill": "ts-node src/seed/seed-skill.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +26,9 @@
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.2",
+    "redis": "^5.8.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.25"
   },

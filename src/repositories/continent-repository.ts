@@ -6,7 +6,6 @@ export const continentRepository = AppDataSource.getRepository(Continent).extend
     async getAllContinentsWithGrounds() {
         return await this.createQueryBuilder('continent')
             .leftJoinAndSelect('continent.huntingGrounds','huntingGround')
-            .leftJoinAndSelect('huntingGround.huntingPosition','huntingPosition')
             .getMany();
     }
 });
