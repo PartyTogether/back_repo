@@ -74,6 +74,7 @@ export const authMe = (req: Request, res: Response) => {
 }
 
 export const authLogout  = async (req: Request, res: Response) => {
+    console.log("로그아웃 실행");
     try {
         res.clearCookie('access_token');
         res.clearCookie('refresh_token');
@@ -81,9 +82,9 @@ export const authLogout  = async (req: Request, res: Response) => {
 
         await deleteRefreshTokenInRedis(req.member.id);
 
-        res.redirect(process.env.BASE_URL!);
+        res.status(200).json({ message : "로그아웃에 성공하였습니다!" });
     } catch(err)    {
-        res.status(500).json({ message : "로그아웃에 실패하였습니다 --> " + err});
+        res.status(500).json({ message : "로그아웃에 실패하였습니다. " });
     }
 };
 
