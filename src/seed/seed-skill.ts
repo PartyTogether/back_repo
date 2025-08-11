@@ -3,50 +3,50 @@ import { Skill } from '../models/entities/skill';
 import {Job} from "../models/entities/job";
 
 
-const skills: Record<string, {name:string, master_level:number, image: string}[]> = {
+const skills: Record<string, {name:string, masterLevel:number, image: string}[]> = {
     '나이트로드' : [
         {
             name : '트리플스로우',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
         {
             name : '베놈',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
         {
             name : '메소업',
-            master_level : 20,
+            masterLevel : 20,
             image : '',
         },
         {
             name : '헤이스트',
-            master_level : 20,
+            masterLevel : 20,
             image : '',
         },
     ],
     '보우마스터' : [
         {
             name : '샤프아이즈',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
         {
             name : '폭풍의시',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
         {
             name : '집중',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
     ],
     '공용' : [
         {
             name : '메이플용사',
-            master_level : 30,
+            masterLevel : 30,
             image : '',
         },
     ]

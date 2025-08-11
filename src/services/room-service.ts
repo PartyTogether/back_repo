@@ -1,4 +1,3 @@
-
 import { Request } from 'express';
 import { RoomCreateReq } from "../dto/room-create-req";
 import { ClientError } from "../error/client-error";
@@ -8,8 +7,9 @@ import { huntingGroundRepository } from "../repositories/hunting-ground-reposito
 import { AppDataSource } from '../data-source';
 import {RoomMetaRes} from "../dto/room-meta-res";
 import {continentRepository} from "../repositories/continent-repository";
-
 import { roomPositionRepository } from "../repositories/room-position-repository";
+import {Room} from "../dto/rooms-res";
+import {RoomsReq} from "../dto/rooms-req";
 
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
@@ -43,9 +43,9 @@ export const createRoom = async (req: Request) => {
             host: member,
             title: roomData.roomTitle,
             desc: roomData.roomDesc,
-            min_level: roomData.roomMinLevel,
-            max_members: roomData.roomMaxMembers,
-            min_time: roomData.roomMinTime,
+            minLevel: roomData.roomMinLevel,
+            maxMembers: roomData.roomMaxMembers,
+            minTime: roomData.roomMinTime,
             channel: roomData.roomChannel,
             huntingGround: huntingGround
         });
@@ -81,13 +81,30 @@ export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
         huntingGrounds: continent.huntingGrounds.map(hg => ({
             huntingGroundName: hg.name,
             positions: [
-                hg.position_1,
-                hg.position_2,
-                hg.position_3,
-                hg.position_4,
-                hg.position_5,
-                hg.position_6,
+                hg.position1,
+                hg.position2,
+                hg.position3,
+                hg.position4,
+                hg.position5,
+                hg.position6,
             ].filter(Boolean),
         })),
     }));
 };
+
+export const getRoomsService = async(continent:string, huntingGround:string): Promise<Room[]> => {
+    const roomsData = await roomRepository.findRoomsByContinentOrHuntingGround(continent,huntingGround);
+    return roomsData.map(room => ({
+        roomId: room.id,
+        roomTitle: room.title,
+        roomDesc: room.desc,
+        roomContinent: room.huntingGround.continent.name,
+        roomHuntingGround: room.huntingGround.name,
+        roomHost: room.host.nickname ? room.host.nickname : room.host.username,
+        roomCurrentMembers: room.currentMemberCount ?? 0,
+        roomMaxMembers: room.maxMembers,
+        roomChannel: room.channel,
+        roomMinLevel: room.minLevel,
+        roomMinTime: room.minTime
+    }))
+}
