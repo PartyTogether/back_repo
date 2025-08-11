@@ -72,10 +72,9 @@ export const createRoom = async (req: Request) => {
     });
 };
 
-export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
-    const continents = await continentRepository.getAllContinentsWithGrounds();
-
-    return continents.map(continent => ({
+export const getRoomMetaService = async (req: Request): Promise<RoomMetaRes> => {
+    const continentsData = await continentRepository.getAllContinentsWithGrounds();
+    const continents = continentsData.map(continent => ({
         continentName: continent.name,
         continentImage: continent.image,
         huntingGrounds: continent.huntingGrounds.map(hg => ({
@@ -87,9 +86,29 @@ export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
                 hg.position4,
                 hg.position5,
                 hg.position6,
-            ].filter(Boolean),
+            ].filter(Boolean) as string[],
         })),
     }));
+
+    let isLoggedIn = false;
+    let hasRoom = false;
+
+    if (req.member && req.member.id) {
+        isLoggedIn = true;
+        const member = await memberRepository.findOne({
+            where: { discord_id: req.member.id },
+            relations: ['room'],
+        });
+        if (member && member.room) {
+            hasRoom = true;
+        }
+    }
+
+    return {
+        continents: continents,
+        isLoggedIn: isLoggedIn,
+        hasRoom: hasRoom,
+    };
 };
 
 export const getRoomsService = async(continent:string, huntingGround:string): Promise<Room[]> => {
