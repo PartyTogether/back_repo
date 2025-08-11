@@ -15,7 +15,7 @@ export const roomRepository = AppDataSource.getRepository(Room).extend({
             query.where('continent.name = :continent', {continent: continent});
         }
 
-        query.orderBy('CASE WHEN room.currentMemberCount >= room.maxMembers THEN 1 ELSE 0 END','ASC')
+        query.orderBy('CASE WHEN (SELECT COUNT(*) FROM member WHERE member.room_id = room.room_id) >= room.maxMembers THEN 1 ELSE 0 END','ASC')
             .addOrderBy('room.createdAt','DESC');
         return query.getMany();
     }
