@@ -11,7 +11,7 @@ export class Skill{
     name!: string;
 
     @Column({name:'skill_master_level'})
-    master_level!: number;
+    masterLevel!: number;
 
     @Column({name:'skill_image'})
     image!: string;

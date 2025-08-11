@@ -1,4 +1,4 @@
-import {IsArray, IsNotEmpty, IsNumber, IsObject, IsString, Max, MaxLength, Min} from 'class-validator';
+import {IsArray, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min} from 'class-validator';
 
 export class RoomCreateReq {
     @IsString()
@@ -8,6 +8,7 @@ export class RoomCreateReq {
 
     @IsString()
     @MaxLength(40)
+    @IsOptional()
     roomDesc!: string;
 
     @IsNumber()
@@ -24,6 +25,7 @@ export class RoomCreateReq {
     roomMinTime!: string;
 
     @IsString()
+    @IsOptional()
     roomChannel!: string;
 
     @IsString()

@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
-import { createRoom } from '../services/room-service';
 import { RoomCreateReq } from '../dto/room-create-req';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { ClientError } from '../error/client-error';
-import {getRoomMetaService} from "../services/room-service";
+import {getRoomMetaService, createRoom, getRoomsService} from "../services/room-service";
+import {RoomsReq} from "../dto/rooms-req";
+
 
 const getErrorMessages = (errors: ValidationError[]): string[] => {
     let messages: string[] = [];
@@ -43,6 +44,25 @@ export const getRoomMetaController = async(_: Request, res: Response) => {
         res.status(200).json(data);
     } catch (error){
         console.error("예기치 못한 오류가 발생했습니다.",error);
-        res.status(400).json({message:'잘못된 요청입니다.'})
+        res.status(400).json({message:'잘못된 요청입니다.'});
     }
+}
+
+export const getRoomsController = async(req: Request, res: Response) => {
+    try{
+        const reqQuery = plainToInstance(RoomsReq,req.query);
+        const errors = await validate(reqQuery);
+        if (errors.length > 0) {
+            const errorMessages = getErrorMessages(errors);
+            throw new ClientError(400,errorMessages.join(', '));
+        }
+        const { continent, huntingGround } = reqQuery;
+        const data = await getRoomsService(continent,huntingGround);
+        res.status(200).json(data);
+    } catch (err){
+        res.status(400).json({message:'잘못된 요청입니다.'});
+    }
+
+
+
 }
