@@ -64,6 +64,8 @@ export const getDiscordMember = async (token: string) => {
         headers: { Authorization: `Bearer ${token}` },
     });
 
+    console.log("memberResponse : ", memberResponse.data);
+
     // Repository Load 및 유저 데이터 저장
     const memberRepository: Repository<Member> = AppDataSource.getRepository(Member);
     const saveMember: DiscordMember = memberResponse.data;
@@ -77,7 +79,7 @@ export const getDiscordMember = async (token: string) => {
 
     // 토큰의 Payload에 저장할 User 정보 저장 및 반환
     const data = memberResponse.data;
-    const member: MemberInfo = { id: data.id, username: data.username }
+    const member: MemberInfo = { id: data.id, username: data.username, avatar: data.avatar, globalname: data.global_name }
 
     return member;
 }

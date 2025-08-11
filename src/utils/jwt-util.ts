@@ -11,7 +11,9 @@ let payload:MemberInfo;
 
 export const generateAccessToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username
+        globalname: member.globalname,
+        username: member.username,
+        avatar: member.avatar
     }
     return jwt.sign(
         payload ,
@@ -22,7 +24,9 @@ export const generateAccessToken = (member: MemberInfo): string => {
 
 export const generateRefreshToken = (member: MemberInfo): string => {
     payload = { id: member.id,
-        username: member.username
+        globalname: member.globalname,
+        username: member.username,
+        avatar: member.avatar
     }
     return jwt.sign(
         payload,
