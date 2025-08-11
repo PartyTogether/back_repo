@@ -50,6 +50,7 @@ export const getRoomMetaController = async(_: Request, res: Response) => {
 
 export const getRoomsController = async(req: Request, res: Response) => {
     try{
+        console.log("방조회 컨트롤러 실행");
         const reqQuery = plainToInstance(RoomsReq,req.query);
         const errors = await validate(reqQuery);
         if (errors.length > 0) {
