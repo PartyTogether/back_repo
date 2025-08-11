@@ -3,7 +3,6 @@ import { HuntingGroundType } from './hunting-ground-type';
 import {Continent} from "./continent";
 import {Room} from "./room";
 import {Bookmark} from "./bookmark";
-import {HuntingPosition} from "./hunting-position";
 
 @Entity()
 export class HuntingGround{
@@ -23,6 +22,25 @@ export class HuntingGround{
     })
     type!: string;         // 사냥터 타입
 
+    @Column({name:'hunting_ground_position_1'})
+    position_1!: string;
+
+    @Column({name:'hunting_ground_position_2'})
+    position_2!: string;
+
+    @Column({name:'hunting_ground_position_3'})
+    position_3!: string;
+
+    @Column({name:'hunting_ground_position_4'})
+    position_4!: string;
+
+    @Column({name:'hunting_ground_position_5'})
+    position_5!: string;
+
+    @Column({name:'hunting_ground_position_6'})
+    position_6!: string;
+
+
     @ManyToOne(() => Continent, (continent) => continent.huntingGrounds)
     @JoinColumn({name:'continent_id'})
     continent!: Continent;
@@ -32,7 +50,4 @@ export class HuntingGround{
 
     @OneToMany(() => Bookmark, (bookmark) => bookmark.member)
     bookmarks!: Bookmark[];
-
-    @OneToOne(() => HuntingPosition, (huntingPosition) => huntingPosition.huntingGround)
-    huntingPosition!: HuntingPosition;
 }

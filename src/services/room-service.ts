@@ -81,14 +81,13 @@ export const getRoomMetaService = async(): Promise<RoomMetaRes[]> => {
         huntingGrounds: continent.huntingGrounds.map(hg => ({
             huntingGroundName: hg.name,
             positions: [
-                hg.huntingPosition?.huntingPosition1,
-                hg.huntingPosition?.huntingPosition2,
-                hg.huntingPosition?.huntingPosition3,
-                hg.huntingPosition?.huntingPosition4,
-                hg.huntingPosition?.huntingPosition5,
-                hg.huntingPosition?.huntingPosition6,
+                hg.position_1,
+                hg.position_2,
+                hg.position_3,
+                hg.position_4,
+                hg.position_5,
+                hg.position_6,
             ].filter(Boolean),
         })),
     }));
 };
-""
