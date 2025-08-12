@@ -52,6 +52,10 @@ export const createRoom = async (req: Request) => {
 
         await roomRepo.save(newRoom);
 
+        // 방장을 방의 멤버로 즉시 연결
+        member.room = newRoom;
+        await memberRepo.save(member);
+
         // 방에 대한 사냥터 자리
         for (const position of roomData.roomPositions) {
             const comment = roomData.roomPositionComments[position] || "";
@@ -66,9 +70,6 @@ export const createRoom = async (req: Request) => {
             });
             await roomPositionRepo.save(newPosition);
         }
-
-        member.room = newRoom;
-        await memberRepo.save(member);
     });
 };
 
@@ -119,8 +120,8 @@ export const getRoomsService = async(continent:string, huntingGround:string): Pr
         roomDesc: room.desc,
         roomContinent: room.huntingGround.continent.name,
         roomHuntingGround: room.huntingGround.name,
-        roomHost: room.host.nickname ? room.host.nickname : room.host.username,
-        roomCurrentMembers: room.currentMemberCount ?? 0,
+        roomHost: room.host.nickname ? room.host.nickname : room.host.globalname,
+        roomCurrentMembers: room.currentMemberCount,
         roomMaxMembers: room.maxMembers,
         roomChannel: room.channel,
         roomMinLevel: room.minLevel,

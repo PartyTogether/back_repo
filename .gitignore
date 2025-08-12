@@ -2,7 +2,7 @@
 node_modules/
 
 # 환경 변수
-.env
+.env*
 .env.local
 
 # 빌드 파일
