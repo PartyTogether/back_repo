@@ -37,10 +37,10 @@ export const createRoomController = async (req: Request, res: Response, next: Ne
 };
 
 
-export const getRoomMetaController = async(_: Request, res: Response) => {
+export const getRoomMetaController = async(req: Request, res: Response) => {
     try{
         console.log("방찾기 메타 데이터 컨트롤러");
-        const data = await getRoomMetaService();
+        const data = await getRoomMetaService(req);
         res.status(200).json(data);
     } catch (error){
         console.error("예기치 못한 오류가 발생했습니다.",error);

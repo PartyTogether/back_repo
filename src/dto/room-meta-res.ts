@@ -3,8 +3,14 @@ export interface HuntingGroundRes {
     positions: string[];
 }
 
-export interface RoomMetaRes {
+export interface Continent {
     continentName: string;
     continentImage: string;
     huntingGrounds: HuntingGroundRes[];
+}
+
+export interface RoomMetaRes {
+    continents: Continent[];
+    isLoggedIn: boolean;
+    hasRoom: boolean;
 }
