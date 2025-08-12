@@ -3,7 +3,7 @@ import { RoomCreateReq } from '../dto/room-create-req';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { ClientError } from '../error/client-error';
-import {getRoomMetaService, createRoom, getRoomsService} from "../services/room-service";
+import {getRoomMetaService, createRoom, getRoomsService, getMyRoomService} from "../services/room-service";
 import {RoomsReq} from "../dto/rooms-req";
 
 
@@ -48,7 +48,7 @@ export const getRoomMetaController = async(req: Request, res: Response) => {
     }
 }
 
-export const getRoomsController = async(req: Request, res: Response) => {
+export const getRoomsController = async(req: Request, res: Response, next: NextFunction) => {
     try{
         console.log("방조회 컨트롤러 실행");
         const reqQuery = plainToInstance(RoomsReq,req.query);
@@ -61,9 +61,15 @@ export const getRoomsController = async(req: Request, res: Response) => {
         const data = await getRoomsService(continent,huntingGround);
         res.status(200).json(data);
     } catch (err){
-        res.status(400).json({message:'잘못된 요청입니다.'});
+        next(err);
     }
+}
 
-
-
+export const getMyRoomController = async(req: Request, res: Response, next: NextFunction) => {
+    try{
+        const data = await getMyRoomService(req);
+        res.status(200).json(data);
+    }catch (err) {
+        next(err);
+    }
 }

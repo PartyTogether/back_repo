@@ -16,7 +16,7 @@ export class Member{
     discord_id!: string   // 디스코드 ID
 
     @Column({name:'member_globalname', type: 'varchar'})
-    globalname!: string; // 디스코드 글로벌 이름
+    globalName!: string; // 디스코드 글로벌 이름
 
     @Column({name:'member_username', type: 'varchar'})
     username!: string;    // 디스코드 사용자 이름
