@@ -1,6 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from 'typeorm';
 import {Member} from "./member";
-import {Room} from "./room";
+import {RoomPosition} from "./room-position";
 
 @Entity()
 export class Applicant{
@@ -11,8 +11,8 @@ export class Applicant{
     @JoinColumn({name:'member_id'})
     member!: Member;
 
-    @ManyToOne(() => Room, (room) => room.applicants)
-    @JoinColumn({name:'room_id'})
-    room!: Room;
+    @ManyToOne(() => RoomPosition, (roomPosition) => roomPosition.applicants)
+    @JoinColumn({name:'room_position_id'})
+    roomPosition!: RoomPosition;
 
 }

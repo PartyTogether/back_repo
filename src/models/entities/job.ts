@@ -7,7 +7,11 @@ export class Job {
     @PrimaryGeneratedColumn('uuid',{name:'job_id'})
     id!: string;
 
-    @Column({name:'job_name', unique:true})
+    @Column({
+        name:'job_name',
+        unique:true,
+        type:'varchar',
+    })
     name!: string;
 
     @OneToMany(() => Skill, (skill) => skill.job)
