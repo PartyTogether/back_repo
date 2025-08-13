@@ -10,6 +10,7 @@ import {continentRepository} from "../repositories/continent-repository";
 import { roomPositionRepository } from "../repositories/room-position-repository";
 import {Room} from "../dto/rooms-res";
 import {RoomsReq} from "../dto/rooms-req";
+import {selectedRoom} from "../dto/room-me-res";
 
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
@@ -120,11 +121,24 @@ export const getRoomsService = async(continent:string, huntingGround:string): Pr
         roomDesc: room.desc,
         roomContinent: room.huntingGround.continent.name,
         roomHuntingGround: room.huntingGround.name,
-        roomHost: room.host.nickname ? room.host.nickname : room.host.globalname,
+        roomHost: room.host.nickname ? room.host.nickname : room.host.globalName,
         roomCurrentMembers: room.currentMemberCount,
         roomMaxMembers: room.maxMembers,
         roomChannel: room.channel,
         roomMinLevel: room.minLevel,
         roomMinTime: room.minTime
     }))
+}
+
+export const getMyRoomService = async(req: Request): Promise<selectedRoom> => {
+    const discordId = req.member.id;
+    const member = await memberRepository.findOne({ where: { discord_id: discordId } });
+    if(!member){
+        throw new ClientError(404, "해당 유저를 찾을 수 없습니다.");
+    }
+    const room = await roomRepository.findMyRoom(member.id);
+    if(!room){
+        throw new ClientError(404, "참여하고 있는 방을 찾을 수 없습니다.");
+    }
+    return room;
 }
