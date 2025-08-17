@@ -22,11 +22,11 @@ export const createRoom = async (req: Request) => {
         const hgRepo = transactionalEntityManager.withRepository(huntingGroundRepository);
         const roomPositionRepo = transactionalEntityManager.withRepository(roomPositionRepository);
 
-        const member = await memberRepo.findOne({ where: { discord_id: memberId }, relations: ['room'] });
+        const member = await memberRepo.findOne({ where: { discord_id: memberId }, relations: ['roomPosition'] });
         if (!member) {
             throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
         }
-        if (member.room) {
+        if (member.roomPosition) {
             throw new ClientError(400,"이미 속하신 방이 존재합니다.");
         }
 
@@ -53,9 +53,6 @@ export const createRoom = async (req: Request) => {
 
         await roomRepo.save(newRoom);
 
-        // 방장을 방의 멤버로 즉시 연결
-        member.room = newRoom;
-        await memberRepo.save(member);
 
         // 방에 대한 사냥터 자리
         for (const position of roomData.roomPositions) {
@@ -99,9 +96,9 @@ export const getRoomMetaService = async (req: Request): Promise<RoomMetaRes> => 
         isLoggedIn = true;
         const member = await memberRepository.findOne({
             where: { discord_id: req.member.id },
-            relations: ['room'],
+            relations: ['roomPosition'],
         });
-        if (member && member.room) {
+        if (member && member.roomPosition) {
             hasRoom = true;
         }
     }

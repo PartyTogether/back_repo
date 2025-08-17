@@ -5,7 +5,7 @@ export interface HuntingGroundRes {
 
 export interface Continent {
     continentName: string;
-    continentImage: string;
+    continentImage: string | null;
     huntingGrounds: HuntingGroundRes[];
 }
 

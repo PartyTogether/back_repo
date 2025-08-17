@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, OneToOne} from 'typeorm';
 import {Job} from "./job";
 import {Applicant} from "./applicant";
 import {application} from "express";
@@ -48,12 +48,9 @@ export class Member{
     @Column({name:'member_nickname', type: 'varchar', nullable:true})
     nickname!: string | null;        // 사용자 닉네임
 
-    @ManyToOne(() => Room, (room) => room.members)
-    @JoinColumn({name:'room_id'})
-    room!: Room;
 
-    @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.member)
-    roomPositions!: RoomPosition[];
+    @OneToOne(() => RoomPosition, (roomPosition) => roomPosition.member)
+    roomPosition!: RoomPosition;
 
     @ManyToOne(() => Job, (job) => job.members)
     @JoinColumn({name:'job_id'})
@@ -66,6 +63,6 @@ export class Member{
     bookmarks!: Bookmark[];
 
     @OneToMany(() => Applicant, (applicant) => applicant.member)
-    applicants!: Applicant[];        // 원래 한 파티만 지원 가능함, 허나 리스트로 둔 이유는 구조상,
-                                     // 서비스 로직에서 한 명당 한 파티에만 지원하게 처리
+    applicants!: Applicant[];
+
 }

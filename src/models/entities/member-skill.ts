@@ -7,7 +7,11 @@ export class MemberSkill{
     @PrimaryGeneratedColumn('uuid',{name:'member_skill_id'})
     id!:string;
 
-    @Column({name:'member_skill_level'})
+    @Column({
+        name:'member_skill_level',
+        type:'integer',
+        default:1,
+    })
     level!: number;
 
     @ManyToOne(() => Skill,(skill) => skill.memberSkills)

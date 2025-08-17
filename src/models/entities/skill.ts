@@ -7,14 +7,25 @@ export class Skill{
     @PrimaryGeneratedColumn('uuid',{name:'skill_id'})
     id!: string;
 
-    @Column({name:'skill_name',unique:true})
+    @Column(
+        {name:'skill_name',
+        unique:true,
+        type:'varchar',
+    })
     name!: string;
 
-    @Column({name:'skill_master_level'})
+    @Column({
+        name:'skill_master_level',
+        type:'integer',
+    })
     masterLevel!: number;
 
-    @Column({name:'skill_image'})
-    image!: string;
+    @Column({
+        name:'skill_image',
+        type:'varchar',
+        nullable:true,
+    })
+    image!: string | null;
 
     @ManyToOne(() => Job, (job) => job.skills)
     @JoinColumn({name:'job_id'})
