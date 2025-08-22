@@ -91,5 +91,64 @@ export const roomRepository = AppDataSource.getRepository(Room).extend({
                 } : null,
             })),
         };
+    },
+    async findRoomById(roomId: string): Promise<selectedRoom | null> {
+        const room = await this.createQueryBuilder('room')
+            .where('room.id = :roomId', { roomId })
+            .innerJoinAndSelect('room.host', 'host')
+            .leftJoinAndSelect('room.roomPositions', 'roomPositions')
+            .leftJoinAndSelect('roomPositions.member', 'positionMember')
+            .leftJoinAndSelect('positionMember.job', 'job')
+            .leftJoinAndSelect('positionMember.memberSkills', 'memberSkills')
+            .leftJoinAndSelect('memberSkills.skill', 'skill')
+            .getOne();
+
+        if (!room) return null;
+
+        const roomMembers = room.roomPositions
+            .filter(rp => rp.member)
+            .map(rp => {
+                const m = rp.member!;
+                return {
+                    memberId: m.id,
+                    memberName: m.nickname || m.globalName,
+                    memberLevel: m.level || null,
+                    memberClass: m.job?.name || '',
+                    memberSkills: m.memberSkills?.map(ms => ({
+                        skillName: ms.skill?.name || '',
+                        skillImage: ms.skill?.image || '',
+                        memberSkillLevel: ms.level,
+                    })) || [],
+                };
+            });
+
+        return {
+            roomId: room.id,
+            roomTitle: room.title,
+            roomDesc: room.desc || null,
+            roomCurrentMembers: roomMembers.length,
+            roomMaxMembers: room.maxMembers,
+            roomChannel: room.channel || null,
+            roomMinLevel: room.minLevel,
+            roomMinTime: room.minTime,
+            roomHost: room.host.id,
+            roomMembers: roomMembers,
+            roomPositions: room.roomPositions.map(rp => ({
+                positionName: rp.name,
+                positionStatus: rp.status,
+                positionComment: rp.comment || '',
+                member: rp.member ? {
+                    memberId: rp.member.id,
+                    memberName: rp.member.nickname || rp.member.globalName,
+                    memberLevel: rp.member.level || null,
+                    memberClass: rp.member.job?.name || '',
+                    memberSkills: rp.member.memberSkills?.map(ms => ({
+                        skillName: ms.skill?.name || '',
+                        skillImage: ms.skill?.image || '',
+                        memberSkillLevel: ms.level,
+                    })) || [],
+                } : null,
+            })),
+        };
     }
 });

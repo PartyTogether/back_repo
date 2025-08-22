@@ -1,4 +1,4 @@
-import express , { Request, Response } from "express";
+import express from "express";
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppDataSource } from './data-source';
@@ -9,6 +9,10 @@ import roomRouter from './router/room-router';
 import cors from 'cors';
 import {errorHandler} from "./middlewares/error-handler";
 import cookieParser from 'cookie-parser';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import { webSocketService } from './services/web-socket-service';
+import url from 'url';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +21,9 @@ const PORT = process.env.PORT || 5000;
 AppDataSource.initialize()
     .then(() => {
         console.log('DB 연결 성공');
+
+        const server = createServer(app);
+        const wss = new WebSocketServer({ noServer: true });
 
         // cors 설정 최상단둬야함
         app.use(cors({
@@ -34,7 +41,21 @@ AppDataSource.initialize()
 
         app.use(errorHandler);
 
-        app.listen(PORT, () => {
+        server.on('upgrade', (request, socket, head) => {
+            const pathname = request.url ? url.parse(request.url).pathname : '';
+            const roomMatch = pathname?.match(/^\/ws\/rooms\/([0-9a-fA-F-]+)$/);
+
+            if (roomMatch) {
+                const roomId = roomMatch[1];
+                wss.handleUpgrade(request, socket, head, (ws) => {
+                    webSocketService.handleConnection(ws, roomId);
+                });
+            } else {
+                socket.destroy();
+            }
+        });
+
+        server.listen(PORT, () => {
             console.log(`Example app listening on port ${PORT}`)
         });
     }).catch((err) => {
