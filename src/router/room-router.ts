@@ -1,5 +1,5 @@
 import express from 'express';
-import {createRoomController, getMyRoomController, getRoomMetaController, getRoomsController} from "../controllers/room-controller";
+import {createRoomController, getMyRoomController, getRoomMetaController, getRoomsController, joinRoomController, leaveRoomController} from "../controllers/room-controller";
 import {authenticateToken} from "../middlewares/authenticate-token";
 import {optionalAuthenticateToken} from "../middlewares/optional-authenticate-token";
 
@@ -12,5 +12,9 @@ router.get('/meta', optionalAuthenticateToken, getRoomMetaController);
 router.get('/rooms',getRoomsController);
 
 router.get('/me',authenticateToken, getMyRoomController);
+
+router.post('/:roomId/join', authenticateToken, joinRoomController);
+
+router.post('/leave', authenticateToken, leaveRoomController);
 
 export default router;

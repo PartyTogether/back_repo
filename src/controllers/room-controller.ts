@@ -3,7 +3,7 @@ import { RoomCreateReq } from '../dto/room-create-req';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { ClientError } from '../error/client-error';
-import {getRoomMetaService, createRoom, getRoomsService, getMyRoomService} from "../services/room-service";
+import {getRoomMetaService, createRoom, getRoomsService, getMyRoomService, joinRoom, leaveRoom} from "../services/room-service";
 import {RoomsReq} from "../dto/rooms-req";
 
 
@@ -73,3 +73,30 @@ export const getMyRoomController = async(req: Request, res: Response, next: Next
         next(err);
     }
 }
+
+export const joinRoomController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { roomId } = req.params;
+        const { positionName } = req.body;
+        const discordId = req.member.id;
+
+        if (!positionName) {
+            throw new ClientError(400, "positionName is required.");
+        }
+
+        await joinRoom(roomId, positionName, discordId);
+        res.status(200).json({ message: "방에 성공적으로 참가했습니다." });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const leaveRoomController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const discordId = req.member.id;
+        await leaveRoom(discordId);
+        res.status(200).json({ message: "방에서 성공적으로 나갔습니다." });
+    } catch (err) {
+        next(err);
+    }
+};
