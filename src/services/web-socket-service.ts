@@ -13,7 +13,7 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
     const connections = roomConnections.get(roomId)!;
     connections.add(ws);
 
-    console.log(`Client connected to room ${roomId}. Total clients: ${connections.size}`);
+    console.log(`웹소켓 연결 된 방 아이디 : ${roomId}. 현재 구독자 수 : ${connections.size}`);
 
     try {
         const roomData = await roomRepository.findRoomById(roomId);
@@ -21,30 +21,30 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
             ws.send(JSON.stringify(roomData));
             console.log(`Sent initial state of room ${roomId} to new client.`);
         } else {
-            console.log(`Room ${roomId} not found for initial state.`);
+            console.log(`${roomId} 해당 룸 데이터를 찾지 못함.`);
             ws.close(1011, `Room ${roomId} not found.`);
         }
     } catch (error) {
-        console.error(`Failed to send initial state for room ${roomId}:`, error);
+        console.error(`해당 방 데이터 조회 중 오류가 발생했습니다. ${roomId}:`, error);
         ws.close(1011, "Internal server error on initial state fetch.");
     }
 
 
     ws.on('close', () => {
         connections.delete(ws);
-        console.log(`Client disconnected from room ${roomId}. Total clients: ${connections.size}`);
+        console.log(`웹 소켓 연결을 끊었습니다. ${roomId}. 현재 구독자 수 : ${connections.size}`);
         if (connections.size === 0) {
             roomConnections.delete(roomId);
         }
     });
 
     ws.on('error', (error) => {
-        console.error(`WebSocket error in room ${roomId}:`, error);
+        console.error(`방에 에러가 발생했습니다. ${roomId}:`, error);
         connections.delete(ws);
     });
 };
 
-// 특정 방의 모든 클라이언트에게 데이터를 브로드캐스트합니다.
+// 특정 방의 모든 클라이언트에게 데이터 브로드캐스트
 const broadcastRoomUpdate = (roomId: string, roomData: selectedRoom) => {
     const connections = roomConnections.get(roomId);
     if (connections) {
@@ -54,7 +54,7 @@ const broadcastRoomUpdate = (roomId: string, roomData: selectedRoom) => {
                 client.send(message);
             }
         });
-        console.log(`Broadcasted update to room ${roomId} for ${connections.size} clients.`);
+        console.log(`${roomId} 방의 브로드캐스트 업데이트 합니다 ${connections.size}명의 유저에게.`);
     }
 };
 
