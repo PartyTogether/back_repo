@@ -9,6 +9,7 @@ import { AppDataSource } from '../data-source';
 import {RoomMetaRes} from "../dto/room-meta-res";
 import {continentRepository} from "../repositories/continent-repository";
 import { roomPositionRepository } from "../repositories/room-position-repository";
+import { applicantRepository } from "../repositories/applicant-repository";
 import {Room} from "../dto/rooms-res";
 import {RoomsReq} from "../dto/rooms-req";
 import {selectedRoom} from "../dto/room-me-res";
@@ -139,6 +140,28 @@ export const getMyRoomService = async(req: Request): Promise<selectedRoom> => {
         throw new ClientError(404, "참여하고 있는 방을 찾을 수 없습니다.");
     }
     return room;
+}
+
+export const applyRoomService = async (roomId: string, positionName: string, discordId: string)=> {
+    const member = await memberRepository.findOne({ where : { discord_id : discordId }, relations: ['roomPosition'] });
+    if(!member){
+        throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
+    }
+    if(member.roomPosition){
+        throw new ClientError(400,"이미 참여하고 있는 방이 있습니다.");
+    }
+    const roomPosition = await roomPositionRepository.findOne({ where : { room : { id: roomId }, name : positionName}, relations: ['member']});
+    if(!roomPosition){
+        throw new ClientError(404,"해당 포지션을 찾을 수 없습니다.");
+    }
+    if(roomPosition.member){
+        throw new ClientError(400,"이미 다른 사람이 차지한 포지션 입니다.");
+    }
+
+    await applicantRepository.save({
+        member: member,
+        roomPosition: roomPosition
+    });
 }
 
 export const joinRoom = async (roomId: string, positionName: string, discordId: string) => {

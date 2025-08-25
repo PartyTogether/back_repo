@@ -3,8 +3,17 @@ import { RoomCreateReq } from '../dto/room-create-req';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { ClientError } from '../error/client-error';
-import {getRoomMetaService, createRoom, getRoomsService, getMyRoomService, joinRoom, leaveRoom} from "../services/room-service";
+import {
+    getRoomMetaService,
+    createRoom,
+    getRoomsService,
+    getMyRoomService,
+    joinRoom,
+    leaveRoom,
+    applyRoomService
+} from "../services/room-service";
 import {RoomsReq} from "../dto/rooms-req";
+import {RoomApplyReq} from "../dto/room-apply-req";
 
 
 const getErrorMessages = (errors: ValidationError[]): string[] => {
@@ -70,6 +79,22 @@ export const getMyRoomController = async(req: Request, res: Response, next: Next
         const data = await getMyRoomService(req);
         res.status(200).json(data);
     }catch (err) {
+        next(err);
+    }
+}
+
+export const applyRoomController = async(req: Request, res:Response, next: NextFunction) => {
+    try{
+        const reqBody = plainToInstance(RoomApplyReq, req.body);
+        const errors = await validate(reqBody);
+        if (errors.length > 0) {
+            const errorMessages = getErrorMessages(errors);
+            throw new ClientError(400,errorMessages.join(', '));
+        }
+        console.log(`신청온 roomId=${reqBody.roomId}, positionName=${reqBody.roomPositionName}, discordId=${req.member.id}`)
+        await applyRoomService(reqBody.roomId,reqBody.roomPositionName,req.member.id);
+        res.status(200).json({ message: "성공적으로 지원이 완료 되었습니다."})
+    } catch (err){
         next(err);
     }
 }
