@@ -1,8 +1,9 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique} from 'typeorm';
 import {Member} from "./member";
 import {RoomPosition} from "./room-position";
 
 @Entity()
+@Unique(['member','roomPosition'])
 export class Applicant{
     @PrimaryGeneratedColumn('uuid',{name:'applicant_id'})
     id!: string;
