@@ -1,10 +1,11 @@
 import WebSocket from 'ws';
 import { selectedRoom } from '../dto/room-me-res';
 import { roomRepository } from '../repositories/room-repository';
+import { applicantRepository } from '../repositories/applicant-repository';
 
 // 표준 웹소켓 메시지 인터페이스
 interface WebSocketMessage {
-    type: 'roomUpdate' | 'chat' | 'applicant' | 'error' | 'system';
+    type: 'roomUpdate' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData';
     payload: unknown;
 }
 
@@ -38,9 +39,10 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
 
     try {
         const roomData = await roomRepository.findRoomById(roomId);
+        const applicants = await applicantRepository.findApplicantsByRoomId(roomId);
         if (roomData) {
             // 연결된 클라이언트에게 현재 방 정보 전송
-            const initialMessage: WebSocketMessage = { type: 'roomUpdate', payload: roomData };
+            const initialMessage: WebSocketMessage = { type: 'initialData', payload: {roomData, applicants} };
             ws.send(JSON.stringify(initialMessage));
         } else {
             const errorMessage: WebSocketMessage = { type: 'error', payload: `Room ${roomId} not found.` };
@@ -61,9 +63,9 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
             
             // 수신된 메시지 타입에 따라 처리
             switch (parsedMessage.type) {
-                case 'chat':
+                case 'newChat':
                     // 채팅 메시지를 받았을 때, 해당 방의 모든 클라이언트에게 재전송
-                    broadcast(roomId, { type: 'chat', payload: parsedMessage.payload });
+                    broadcast(roomId, { type: 'newChat', payload: parsedMessage.payload });
                     break;
                 default:
                     console.log(`[${roomId}] 에서 알 수 없는 타입의 메시지 수신: ${parsedMessage.type}`);
