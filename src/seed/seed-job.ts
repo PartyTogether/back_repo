@@ -6,13 +6,18 @@ const seedJob = async () => {
     const jobRepo = AppDataSource.getRepository(Job);
 
     const jobs = [
-        {name:"나이트로드"},
-        {name:"보우마스터"},
-        {name:"아크메이지"},
-        {name:"비숍"},
-        {name:"팔라딘"},
-        {name:"다크나이트"},
         {name:"히어로"},
+        {name:"다크나이트"},
+        {name:"팔라딘"},
+        {name:"아크메이지(불,독)"},
+        {name:"아크메이지(썬,콜)"},
+        {name:"비숍"},
+        {name:"나이트로드"},
+        {name:"섀도어"},
+        {name:"보우마스터"},
+        {name:"신궁"},
+        {name:"캡틴"},
+        {name:"바이퍼"},
         {name:'공용'}
     ]
 

@@ -6,6 +6,7 @@ import 'reflect-metadata';
 import oauthRouter from './router/auth-router';
 import continentRouter from './router/continent-router';
 import roomRouter from './router/room-router';
+import memberRouter from './router/member-router';
 import cors from 'cors';
 import {errorHandler} from "./middlewares/error-handler";
 import cookieParser from 'cookie-parser';
@@ -19,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 
 // 실행시 DB 연결 및 라우터 설정
 AppDataSource.initialize()
-    .then(() => {
+    .then(async () => {
         console.log('DB 연결 성공');
 
         const server = createServer(app);
@@ -36,6 +37,7 @@ AppDataSource.initialize()
 
         // 라우터들
         app.use('/auth', oauthRouter);
+        app.use('/api/member', memberRouter);
         app.use('/api/room',roomRouter);
         app.use('/api/continents',continentRouter);
 

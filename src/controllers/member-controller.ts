@@ -8,6 +8,7 @@ import {
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
 import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
+import {getMemberById} from "../services/member-service";
 
 
 const app = express();
@@ -20,6 +21,7 @@ export const discordLogin = (req: Request, res: Response) => {
 
 // 디스코드 로그인 성공 후 처리까지
 export const discordCallback = asyncHandler(async (req: Request, res: Response) => {
+    console.log("discordCallback");
     const code = req.query.code as string | undefined;
 
     if(!code)   {
@@ -67,7 +69,7 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const authMe = (req: Request, res: Response) => {
-    console.log("req.member : ", req.member);
+    console.log("클라이언트 식별 요청 : ", req.member);
     if(req.member)  {
         res.status(200).send(req.member);
     }
@@ -76,9 +78,9 @@ export const authMe = (req: Request, res: Response) => {
 export const authLogout  = async (req: Request, res: Response) => {
     console.log("로그아웃 실행");
     try {
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
-        res.clearCookie('auth_status');
+        res.clearCookie(process.env.ACCESS_TOKEN!);
+        res.clearCookie(process.env.REFRESH_TOKEN!);
+        res.clearCookie(process.env.AUTH_STATUS!);
 
         await deleteRefreshTokenInRedis(req.member.id);
 
@@ -88,37 +90,12 @@ export const authLogout  = async (req: Request, res: Response) => {
     }
 };
 
-// // AccessToken 만료시 RefreshToken과 함께 재발급
-// export const refreshTokens = async (req: Request, res: Response) => {
-//     const accessToken = req.cookies.accessToken;
-//     const refreshToken = req.cookies.refreshToken;
-//
-//     if(!accessToken || !refreshToken)  {
-//         res.status(405).send("accessToken 또는 refreshToken 이 없습니다.");
-//         return;
-//     }
-//
-//     try {
-//         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateNewTokens(accessToken, refreshToken);
-//
-//         res.cookie('access_token', newAccessToken, {
-//             httpOnly: true,
-//             secure: false,
-//             maxAge: 15 * 60 * 1000
-//         });
-//
-//         res.cookie('refresh_token', newRefreshToken, {
-//             httpOnly: true,
-//             secure: false,
-//             maxAge: 7 * 24 * 60 * 60 * 1000
-//         });
-//
-//         console.log("발급된 access_token : ", accessToken);
-//         console.log("발급된 refresh_token : ", refreshToken);
-//
-//         res.redirect(process.env.BASE_URL!);
-//
-//     } catch(err)    {
-//         res.status(420).send({ message : "RefreshToken에 문제가 있습니다. 다시 로그인하세요."});
-//     }
-// }
+export const getMember = async(req: Request, res: Response) => {
+    console.log("유저 정보 가져오기 실행");
+    try {
+        const memberInfo = await getMemberById(req);
+        res.status(200).json({ member : memberInfo });
+    } catch(err)    {
+        res.status(500).json({ message : "유저 정보 가져오기 오류 발생"});
+    }
+}

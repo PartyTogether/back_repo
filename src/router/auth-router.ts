@@ -10,6 +10,6 @@ router.get('/discord/callback', discordCallback);
 
 router.get('/me', authenticateToken, authMe);
 
-router.get('/logout', authenticateToken, authLogout);
+router.post('/logout', authenticateToken, authLogout);
 
 export default router;

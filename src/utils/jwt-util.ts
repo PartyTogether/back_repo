@@ -55,19 +55,21 @@ export const verifyRefreshToken = (token: string) => {
 
 // Redis에 RefreshToken SAVE
 export const saveRefreshTokenInRedis = async (userId: string, token: string) => {
+    console.log("save RefreshToken");
     const client = await getRedisClient();
     await client.set(`refresh:${userId}`, token, { EX : JWT_REFRESH_EXPIRE });
 };
 
 // Redis에 있는 RefreshToken GET
 export const getRefreshTokenInRedis = async (userId: string): Promise<String | null> => {
+    console.log("get RefreshToken");
     const client = await getRedisClient();
     return await client.get(`refresh:${userId}`);
 };
 
 // Redis에 있는 RefreshToken DELETE
 export const deleteRefreshTokenInRedis = async (userId: string)=> {
-    console.log(`refresh:${userId}`);
+    console.log("delete RefreshToken");
     const client = await getRedisClient();
     return await client.del(`refresh:${userId}`);
 };

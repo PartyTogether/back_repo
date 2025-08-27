@@ -6,6 +6,7 @@ export const createMemberFromDiscordMember = (discordMember: DiscordMember): Mem
     return Object.assign(new Member(), {
         discord_id:discordMember.id,
         username:discordMember.username,
+        globalName: discordMember.global_name,
         avatar: discordMember.avatar ?? '',
         discriminator: discordMember.discriminator,
         public_flags: Number(discordMember.public_flags ?? 0),
