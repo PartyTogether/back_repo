@@ -7,13 +7,14 @@ import jwt from "jsonwebtoken";
 import {generateNewTokens} from "../services/auth-service";
 
 // 사용자 토큰을 검증하고 성공 시 Token의 Payload를 req.user에 적용
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const accessToken = req.cookies.access_token;
     const refreshToken = req.cookies.refresh_token;
 
     // 토큰 없을 시
     if (!accessToken || !refreshToken) {
         res.status(401).json({ message: "Token이 없습니다." });
+        return;
     }
 
     try {
@@ -25,13 +26,17 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             where : { discord_id : getMemberByToken.id }
         });
 
+        console.log("member isExist : ", isExist);
+
         // 해당 유저가 존재하는지 확인
         if(!isExist)    {
             res.status(403).json({ message : "유저가 존재하지 않습니다." });
+            return;
         }
 
         // 다음 MiddleWare에서 요청 Member의 정보를 사용할 수 있도록 정보 저장
         req.member = getMemberByToken;
+        console.log("토큰 검사 완료 다음 미들웨어로 넘어가기");
         next();
     } catch (err) {
         // AccessToken이 만료되서 예외처리가 될 경우
@@ -77,6 +82,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
                 res.clearCookie("refresh_token");
                 res.clearCookie("auth_status");
                 res.redirect(process.env.BASE_URL!);
+                return;
             }
         }
     }

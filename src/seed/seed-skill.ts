@@ -4,6 +4,125 @@ import {Job} from "../models/entities/job";
 
 
 const skills: Record<string, {name:string, masterLevel:number, image: string}[]> = {
+    '히어로' : [
+        {
+            name : '분노',
+            masterLevel : 20,
+            image : '',
+        },
+        {
+            name : '브랜디쉬',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
+    '다크나이트' : [
+        {
+            name : '하이퍼바디',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '스피어버스터',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '드래곤로어',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '버서크',
+            masterLevel : 30,
+            image : '',
+        }
+    ],
+    '아크메이지(불,독)' : [
+        {
+            name : '익스플로전',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '패럴라이즈',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
+    '아크메이지(썬,콜)' : [
+        {
+            name : '아이스스트라이크',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '체인라이트닝',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
+    '비숍' : [
+        {
+            name : '힐',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '홀리심볼',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '블레스',
+            masterLevel : 20,
+            image : '',
+        },
+        {
+            name : '미스틱도어',
+            masterLevel : 20,
+            image : '',
+        },
+        {
+            name : '리저렉션',
+            masterLevel : 10,
+            image : '',
+        },
+        {
+            name : '제네시스',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
+    '보우마스터' : [
+        {
+            name : '샤프아이즈',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '폭풍의시',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '집중',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
+    '신궁' : [
+        {
+            name : '샤프아이즈',
+            masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '크로스보우엑스퍼트',
+            masterLevel : 30,
+            image : '',
+        },
+    ],
     '나이트로드' : [
         {
             name : '트리플스로우',
@@ -26,19 +145,24 @@ const skills: Record<string, {name:string, masterLevel:number, image: string}[]>
             image : '',
         },
     ],
-    '보우마스터' : [
+    '섀도어' : [
         {
-            name : '샤프아이즈',
+            name : '헤이스트',
+            masterLevel : 20,
+            image : '',
+        },
+        {
+            name : '메소익스플로전',
             masterLevel : 30,
             image : '',
         },
         {
-            name : '폭풍의시',
+            name : '베놈',
             masterLevel : 30,
             image : '',
         },
         {
-            name : '집중',
+            name : '부메랑스텝',
             masterLevel : 30,
             image : '',
         },
@@ -47,6 +171,11 @@ const skills: Record<string, {name:string, masterLevel:number, image: string}[]>
         {
             name : '메이플용사',
             masterLevel : 30,
+            image : '',
+        },
+        {
+            name : '용사의의지',
+            masterLevel : 5,
             image : '',
         },
     ]

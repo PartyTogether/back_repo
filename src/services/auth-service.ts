@@ -69,17 +69,22 @@ export const getDiscordMember = async (token: string) => {
     // Repository Load 및 유저 데이터 저장
     const memberRepository: Repository<Member> = AppDataSource.getRepository(Member);
     const saveMember: DiscordMember = memberResponse.data;
-    const isExist: boolean = await memberRepository.exists({ where : { discord_id : saveMember.id }});
+    let savedMember;
+    savedMember = await memberRepository.findOne({ where : { discord_id : saveMember.id }});
     
     // 유저 정보가 없으면 유저 정보 저장 후 로깅
-    if(!isExist)   {
-        const savedMember = await memberRepository.save(memberRepository.create(createMemberFromDiscordMember(saveMember)));
+    if(!savedMember)   {
+        savedMember = await memberRepository.save(memberRepository.create(createMemberFromDiscordMember(saveMember)));
         console.log("savedMember : ", savedMember);
     }
 
     // 토큰의 Payload에 저장할 User 정보 저장 및 반환
-    const data = memberResponse.data;
-    const member: MemberInfo = { id: data.id, username: data.username, avatar: data.avatar, globalname: data.global_name }
+    const member: MemberInfo = {
+        id: savedMember.discord_id,
+        username: savedMember.username,
+        avatar: savedMember.avatar,
+        globalname: savedMember.globalName
+    }
 
     return member;
 }
