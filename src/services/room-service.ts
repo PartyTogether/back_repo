@@ -146,13 +146,23 @@ export const getMyRoomService = async(req: Request): Promise<selectedRoom> => {
 export const applyRoomService = async (roomId: string, positionName: string, discordId: string)=> {
     const member = await memberRepository.findOne({
         where: { discord_id: discordId },
-        relations: ['roomPosition', 'job', 'memberSkills', 'memberSkills.skill']
+        relations: ['roomPosition', 'job', 'memberSkills', 'memberSkills.skill','applicants','applicants.roomPosition','applicants.roomPosition.room']
     });
     if(!member){
         throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
     }
     if(member.roomPosition){
         throw new ClientError(400,"이미 참여하고 있는 방이 있습니다.");
+    }
+    if(member.applicants){
+        const isDuplicate = member.applicants.some(applicant =>
+            applicant.roomPosition.room.id === roomId &&
+            applicant.roomPosition.name === positionName
+        );
+        if(isDuplicate){
+            throw new ClientError(400,"해당 자리는 이미 신청한 자리입니다.");
+        }
+
     }
     const roomPosition = await roomPositionRepository.findOne({ where : { room : { id: roomId }, name : positionName}, relations: ['member']});
     if(!roomPosition){
