@@ -20,6 +20,7 @@ export const applicantRepository = AppDataSource.getRepository(Applicant).extend
             memberName: r.member.nickname || r.member.globalName,
             memberLevel: r.member.level || null,
             memberClass: r.member.job.name,
+            positionName: r.roomPosition.name,
             memberSkills: r.member.memberSkills.map(ms => ({
                 skillName: ms.skill.name,
                 skillImage: ms.skill.image || null,

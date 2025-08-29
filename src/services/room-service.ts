@@ -173,6 +173,7 @@ export const applyRoomService = async (roomId: string, positionName: string, dis
         memberName: member.nickname || member.globalName,
         memberLevel: member.level,
         memberClass: member.job.name,
+        positionName: roomPosition.name,
         memberSkills: member.memberSkills.map(ms => ({
             skillName: ms.skill.name,
             skillImage: ms.skill.image || '',

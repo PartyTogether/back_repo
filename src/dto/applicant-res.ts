@@ -5,6 +5,7 @@ export interface ApplicantRes {
     memberName: string;
     memberLevel: number | null;
     memberClass: string;
+    positionName: string;
     memberSkills: memberSkill[];
 }
 
