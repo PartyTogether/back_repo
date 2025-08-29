@@ -13,6 +13,7 @@ import { applicantRepository } from "../repositories/applicant-repository";
 import {Room} from "../dto/rooms-res";
 import {RoomsReq} from "../dto/rooms-req";
 import {selectedRoom} from "../dto/room-me-res";
+import {ApplicantRes, memberSkill} from "../dto/applicant-res";
 
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
@@ -143,7 +144,10 @@ export const getMyRoomService = async(req: Request): Promise<selectedRoom> => {
 }
 
 export const applyRoomService = async (roomId: string, positionName: string, discordId: string)=> {
-    const member = await memberRepository.findOne({ where : { discord_id : discordId }, relations: ['roomPosition'] });
+    const member = await memberRepository.findOne({
+        where: { discord_id: discordId },
+        relations: ['roomPosition', 'job', 'memberSkills', 'memberSkills.skill']
+    });
     if(!member){
         throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
     }
@@ -158,10 +162,26 @@ export const applyRoomService = async (roomId: string, positionName: string, dis
         throw new ClientError(400,"이미 다른 사람이 차지한 포지션 입니다.");
     }
 
-    await applicantRepository.save({
+    const savedApplicant = await applicantRepository.save({
         member: member,
         roomPosition: roomPosition
     });
+
+    const newApplicantDto: ApplicantRes = {
+        applicantId: savedApplicant.id,
+        memberId: member.id,
+        memberName: member.nickname || member.globalName,
+        memberLevel: member.level,
+        memberClass: member.job.name,
+        positionName: roomPosition.name,
+        memberSkills: member.memberSkills.map(ms => ({
+            skillName: ms.skill.name,
+            skillImage: ms.skill.image || '',
+            memberSkillLevel: ms.level,
+        } as memberSkill)),
+    };
+
+    webSocketService.broadcast(roomId, { type: 'newApplicant', payload: newApplicantDto });
 }
 
 export const joinRoom = async (roomId: string, positionName: string, discordId: string) => {
