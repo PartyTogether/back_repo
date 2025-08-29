@@ -9,7 +9,7 @@ export const applicantRepository = AppDataSource.getRepository(Applicant).extend
             .leftJoinAndSelect('member.job', 'job')
             .leftJoinAndSelect('member.memberSkills', 'memberSkill')
             .leftJoinAndSelect('memberSkill.skill', 'skill')
-            .innerJoin('applicant.roomPosition', 'roomPosition')
+            .innerJoinAndSelect('applicant.roomPosition', 'roomPosition')
             .innerJoin('roomPosition.room', 'room')
             .where('room.id = :roomId', { roomId })
             .getMany();
