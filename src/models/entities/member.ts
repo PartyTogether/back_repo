@@ -42,7 +42,7 @@ export class Member{
     @Column({name:'member_offer_comment', type: 'varchar', length: 100, nullable:true})
     offer_comment!: string | null;  // 구인 신청 포맷
 
-    @Column({name:'member_level', type: 'varchar', nullable:true})
+    @Column({name:'member_level', type: 'integer', default: 1})
     level!: number | null;           // 사용자 레벨
 
     @Column({name:'member_nickname', type: 'varchar', nullable:true})
