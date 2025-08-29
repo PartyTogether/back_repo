@@ -25,7 +25,7 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
     const code = req.query.code as string | undefined;
 
     if(!code)   {
-        res.status(400).send("코드가 없습니다.");
+        res.redirect(process.env.BASE_URL!);
         return;
     }
     

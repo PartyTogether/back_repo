@@ -95,6 +95,10 @@ export const generateNewTokens = async (refreshToken: string) => {
         const member: MemberInfo = verifyRefreshToken(refreshToken);
 
         const redisToken = await getRefreshTokenInRedis(member.id);
+
+        console.log("refreshToken in Client : ", refreshToken);
+        console.log("refreshToken in Redis : ", redisToken);
+
         if (redisToken !== refreshToken) {
             // 일치하지 않으면 예외 발생
             throw new Error("Refresh Token이 유효하지 않습니다.");
