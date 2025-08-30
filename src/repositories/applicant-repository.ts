@@ -28,4 +28,12 @@ export const applicantRepository = AppDataSource.getRepository(Applicant).extend
             }))
         }));
     },
+
+    async findApplicantsByMemberId(memberId: string): Promise<Applicant[]> {
+        return this.createQueryBuilder('applicant')
+            .leftJoinAndSelect('applicant.roomPosition', 'roomPosition')
+            .leftJoinAndSelect('roomPosition.room', 'room')
+            .where('applicant.member.id = :memberId', { memberId })
+            .getMany();
+    }
 });

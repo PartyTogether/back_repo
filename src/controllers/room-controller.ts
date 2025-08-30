@@ -8,12 +8,13 @@ import {
     createRoom,
     getRoomsService,
     getMyRoomService,
-    joinRoom,
+    joinRoomService,
     leaveRoom,
-    applyRoomService
+    applyRoomService,
 } from "../services/room-service";
 import {RoomsReq} from "../dto/rooms-req";
 import {RoomApplyReq} from "../dto/room-apply-req";
+import {RoomApplyAcceptReq} from "../dto/room-apply-accept-req";
 
 
 const getErrorMessages = (errors: ValidationError[]): string[] => {
@@ -101,16 +102,14 @@ export const applyRoomController = async(req: Request, res:Response, next: NextF
 
 export const joinRoomController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { roomId } = req.params;
-        const { positionName } = req.body;
-        const discordId = req.member.id;
-
-        if (!positionName) {
-            throw new ClientError(400, "positionName is required.");
+        const reqBody = plainToInstance(RoomApplyAcceptReq, req.body);
+        const errors = await validate(reqBody);
+        if(errors.length > 0){
+            const errorMessages = getErrorMessages(errors);
+            throw new ClientError(400, '수락 신청중 오류가 발생했습니다.');
         }
-
-        await joinRoom(roomId, positionName, discordId);
-        res.status(200).json({ message: "방에 성공적으로 참가했습니다." });
+        await joinRoomService(reqBody.applicantId, req.member.id);
+        res.status(200).json({ message: "파티 가입을 수락했습니다." });
     } catch (err) {
         next(err);
     }

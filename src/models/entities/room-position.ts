@@ -3,6 +3,7 @@ import {Room} from "./room";
 import {Member} from "./member";
 import {Applicant} from "./applicant";
 import {application} from "express";
+import {RoomPositionStatus} from "./room-position-status";
 
 @Entity()
 export class RoomPosition{
@@ -17,8 +18,9 @@ export class RoomPosition{
 
     @Column({
         name:'room_position_status',
-        type:'varchar',
-        default:'모집중',
+        type:'enum',
+        enum: RoomPositionStatus,
+        default: RoomPositionStatus.OPEN
     })
     status!:string;
 

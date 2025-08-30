@@ -5,11 +5,10 @@ import { applicantRepository } from '../repositories/applicant-repository';
 
 // 표준 웹소켓 메시지 인터페이스
 interface WebSocketMessage {
-    type: 'roomUpdate' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData';
+    type: 'roomUpdate' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData' | 'applicant_accepted' | 'applicant_canceled';
     payload: unknown;
 }
 
-// roomId를 키로, 해당 방에 연결된 WebSocket 클라이언트 집합을 값으로 가집니다.
 const roomConnections = new Map<string, Set<WebSocket>>();
 
 // 특정 방의 모든 클라이언트에게 메시지를 브로드캐스트하는 범용 함수
@@ -89,7 +88,7 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
     });
 };
 
-// 특정 방의 상태 업데이트를 브로드캐스트 (기존 함수 -> 새로운 broadcast 함수 사용)
+// 특정 방의 상태 업데이트를 브로드캐스트
 const broadcastRoomUpdate = (roomId: string, roomData: selectedRoom) => {
     broadcast(roomId, { type: 'roomUpdate', payload: roomData });
 };
@@ -97,5 +96,5 @@ const broadcastRoomUpdate = (roomId: string, roomData: selectedRoom) => {
 export const webSocketService = {
     handleConnection,
     broadcastRoomUpdate,
-    broadcast, // 범용 broadcast 함수도 export하여 다른 서비스에서 직접 사용 가능
+    broadcast,
 };
