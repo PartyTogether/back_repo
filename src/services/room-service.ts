@@ -14,6 +14,8 @@ import {Room} from "../dto/rooms-res";
 import {RoomsReq} from "../dto/rooms-req";
 import {selectedRoom} from "../dto/room-me-res";
 import {ApplicantRes, memberSkill} from "../dto/applicant-res";
+import {RoomPositionStatus} from "../models/entities/room-position-status";
+import {Applicant} from "../models/entities/applicant";
 
 export const createRoom = async (req: Request) => {
     const memberId = req.member.id;
@@ -194,35 +196,75 @@ export const applyRoomService = async (roomId: string, positionName: string, dis
     webSocketService.broadcast(roomId, { type: 'newApplicant', payload: newApplicantDto });
 }
 
-export const joinRoom = async (roomId: string, positionName: string, discordId: string) => {
+export const joinRoomService = async (applicantId: string, discordId: string) => {
+    let memberIdForBroadcast: string | null = null;
+    let acceptedRoomId: string | null = null;
+    let otherAppliedRoomsForBroadcast: Applicant[] = [];
+
     await AppDataSource.transaction(async (transactionalEntityManager) => {
         const memberRepo = transactionalEntityManager.withRepository(memberRepository);
         const roomPositionRepo = transactionalEntityManager.withRepository(roomPositionRepository);
+        const applicantRepo = transactionalEntityManager.withRepository(applicantRepository);
 
-        const member = await memberRepo.findOne({ where: { discord_id: discordId }, relations: ['roomPosition'] });
-        if (!member) {
-            throw new ClientError(404, "해당 유저를 찾을 수 없습니다.");
+        const applicant = await applicantRepo.findOne({where : { id: applicantId}, relations:['member','member.roomPosition','roomPosition','roomPosition.room', 'roomPosition.room.host'] });
+        if(!applicant || !applicant.member){
+            throw new ClientError(404,"신청자를 찾을 수 없습니다.");
         }
-        if (member.roomPosition) {
-            throw new ClientError(400, "이미 참여하고 있는 방이 있습니다.");
-        }
-
-        const position = await roomPositionRepo.findOne({ where: { room: { id: roomId }, name: positionName }, relations: ['room', 'member'] });
-        if (!position) {
-            throw new ClientError(404, "해당 포지션을 찾을 수 없습니다.");
-        }
-        if (position.member) {
-            throw new ClientError(400, "이미 다른 사람이 차지한 포지션입니다.");
+        if(applicant.member.roomPosition){
+           throw new ClientError(400,"해당 신청자는 이미 방에 가입됐습니다.");
         }
 
-        position.member = member;
-        position.status = '모집완료';
-        await roomPositionRepo.save(position);
+        const host = await memberRepo.findOne({where : { discord_id: discordId }});
+        if(!host || applicant.roomPosition.room.host.id !== host.id){
+            throw new ClientError(400,"방장만 가입수락을 할 수 있습니다.");
+        }
+
+        const roomPosition = await roomPositionRepo.findOne({where: { id: applicant.roomPosition.id }, relations:['member']
+        , lock: { mode: 'pessimistic_write' }});
+        if(!roomPosition){
+            throw new ClientError(400,"존재하지 않는 자리입니다.");
+        }
+        if(roomPosition.member){
+            throw new ClientError(400,"이미 가득찬 자리입니다.");
+        }
+
+        // 브로드캐스트에 필요한 정보를 외부 변수에 할당
+        memberIdForBroadcast = applicant.member.id;
+        acceptedRoomId = applicant.roomPosition.room.id;
+        otherAppliedRoomsForBroadcast = await applicantRepo.find({
+            where: { member: { id: applicant.member.id } },
+            relations: ['roomPosition', 'roomPosition.room']
+        });
+
+        roomPosition.member = applicant.member;
+        roomPosition.status = RoomPositionStatus.CLOSE;
+        await roomPositionRepo.save(roomPosition);
+
+        await applicantRepo.delete({member: {id: applicant.member.id}});
     });
 
-    const updatedRoomData = await roomRepository.findRoomById(roomId);
-    if (updatedRoomData) {
-        webSocketService.broadcastRoomUpdate(roomId, updatedRoomData);
+    if (memberIdForBroadcast && acceptedRoomId && otherAppliedRoomsForBroadcast) {
+        const updatedRoomData = await roomRepository.findRoomById(acceptedRoomId);
+        if (updatedRoomData) {
+            webSocketService.broadcast(acceptedRoomId, {
+                type: 'applicant_accepted',
+                payload: { 
+                    memberId: memberIdForBroadcast,
+                    updatedRoomData
+                }
+            });
+        }
+
+        // 다른 신청했던 방들에 취소 알림
+        for (const otherApplicant of otherAppliedRoomsForBroadcast) {
+            const otherRoomId = otherApplicant.roomPosition.room.id;
+            if (otherRoomId !== acceptedRoomId) {
+                webSocketService.broadcast(otherRoomId, {
+                    type: 'applicant_canceled',
+                    payload: { applicantId: otherApplicant.id } 
+                });
+            }
+        }
     }
 };
 

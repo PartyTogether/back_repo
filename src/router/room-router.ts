@@ -23,7 +23,7 @@ router.get('/me',authenticateToken, getMyRoomController);
 
 router.post("/apply",authenticateToken, applyRoomController);
 
-router.post('/:roomId/join', authenticateToken, joinRoomController);
+router.post('/apply/accept', authenticateToken, joinRoomController);
 
 router.post('/leave', authenticateToken, leaveRoomController);
 
