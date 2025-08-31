@@ -270,6 +270,7 @@ export const joinRoomService = async (applicantId: string, discordId: string) =>
 
 export const leaveRoom = async (discordId: string) => {
     let roomId: string | undefined;
+    let memberNameForBroadcast: string | undefined;
 
     await AppDataSource.transaction(async (transactionalEntityManager) => {
         const memberRepo = transactionalEntityManager.withRepository(memberRepository);
@@ -279,6 +280,7 @@ export const leaveRoom = async (discordId: string) => {
         if (!member || !member.roomPosition) {
             throw new ClientError(404, "참여하고 있는 방이 없습니다.");
         }
+        memberNameForBroadcast = member.nickname || member.globalName;
 
         const position = member.roomPosition;
         roomId = position.room.id;
@@ -289,14 +291,20 @@ export const leaveRoom = async (discordId: string) => {
         }
 
         position.member = null;
-        position.status = '모집중';
+        position.status = RoomPositionStatus.OPEN;
         await roomPositionRepo.save(position);
     });
 
     if (roomId) {
         const updatedRoomData = await roomRepository.findRoomById(roomId);
         if (updatedRoomData) {
-            webSocketService.broadcastRoomUpdate(roomId, updatedRoomData);
+            webSocketService.broadcast(roomId, {
+                type: 'leaveRoom',
+                payload: {
+                    memberName: memberNameForBroadcast,
+                    updatedRoomData
+                }
+            });
         }
     }
 };
