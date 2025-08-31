@@ -25,6 +25,6 @@ router.post("/apply",authenticateToken, applyRoomController);
 
 router.post('/apply/accept', authenticateToken, joinRoomController);
 
-router.post('/leave', authenticateToken, leaveRoomController);
+router.delete('/leave', authenticateToken, leaveRoomController);
 
 export default router;

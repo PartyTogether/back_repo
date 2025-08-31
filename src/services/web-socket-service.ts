@@ -5,7 +5,7 @@ import { applicantRepository } from '../repositories/applicant-repository';
 
 // 표준 웹소켓 메시지 인터페이스
 interface WebSocketMessage {
-    type: 'roomUpdate' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData' | 'applicant_accepted' | 'applicant_canceled';
+    type: 'leaveRoom' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData' | 'applicant_accepted' | 'applicant_canceled';
     payload: unknown;
 }
 
@@ -88,13 +88,9 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
     });
 };
 
-// 특정 방의 상태 업데이트를 브로드캐스트
-const broadcastRoomUpdate = (roomId: string, roomData: selectedRoom) => {
-    broadcast(roomId, { type: 'roomUpdate', payload: roomData });
-};
+
 
 export const webSocketService = {
     handleConnection,
-    broadcastRoomUpdate,
     broadcast,
 };
