@@ -5,13 +5,18 @@ import { applicantRepository } from '../repositories/applicant-repository';
 
 // 표준 웹소켓 메시지 인터페이스
 interface WebSocketMessage {
-    type: 'leaveRoom' | 'newChat' | 'newApplicant' | 'error' | 'system' | 'initialData' | 'applicant_accepted' | 'applicant_canceled';
+    type: 'leaveRoom' | 'newChat' | 'newApplicant' | 'error'  | 'initialData' | 'applicant_accepted' | 'applicant_canceled' | 'room_joined';
     payload: unknown;
 }
 
+// roomId를 키로, 해당 방에 연결된 WebSocket
 const roomConnections = new Map<string, Set<WebSocket>>();
+// memberId를 키로, 해당 유저에 연결된 WebSocket
+const memberConnections = new Map<string, WebSocket>();
 
-// 특정 방의 모든 클라이언트에게 메시지를 브로드캐스트하는 범용 함수
+
+
+// 특정 방의 모든 클라이언트에게 메시지를 브로드캐스트하는 함수
 const broadcast = (roomId: string, message: WebSocketMessage) => {
     const connections = roomConnections.get(roomId);
     if (connections) {
@@ -25,8 +30,7 @@ const broadcast = (roomId: string, message: WebSocketMessage) => {
     }
 };
 
-
-// 새 클라이언트 연결을 처리합니다.
+// 방의 새 웹소켓 연결을 처리하는 함수
 const handleConnection = async (ws: WebSocket, roomId: string) => {
     if (!roomConnections.has(roomId)) {
         roomConnections.set(roomId, new Set());
@@ -40,34 +44,21 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
         const roomData = await roomRepository.findRoomById(roomId);
         const applicants = await applicantRepository.findApplicantsByRoomId(roomId);
         if (roomData) {
-            // 연결된 클라이언트에게 현재 방 정보 전송
             const initialMessage: WebSocketMessage = { type: 'initialData', payload: {roomData, applicants} };
             ws.send(JSON.stringify(initialMessage));
         } else {
-            const errorMessage: WebSocketMessage = { type: 'error', payload: `Room ${roomId} not found.` };
-            ws.send(JSON.stringify(errorMessage));
             ws.close(1011, `Room ${roomId} not found.`);
         }
     } catch (error) {
         console.error(`해당 방 데이터 조회 중 오류가 발생했습니다. ${roomId}:`, error);
-        const errorMessage: WebSocketMessage = { type: 'error', payload: 'Internal server error on initial state fetch.' };
-        ws.send(JSON.stringify(errorMessage));
         ws.close(1011, "Internal server error.");
     }
 
-    // 클라이언트로부터 메시지 수신 처리
     ws.on('message', (message: string) => {
         try {
             const parsedMessage: WebSocketMessage = JSON.parse(message);
-            
-            // 수신된 메시지 타입에 따라 처리
-            switch (parsedMessage.type) {
-                case 'newChat':
-                    // 채팅 메시지를 받았을 때, 해당 방의 모든 클라이언트에게 재전송
-                    broadcast(roomId, { type: 'newChat', payload: parsedMessage.payload });
-                    break;
-                default:
-                    console.log(`[${roomId}] 에서 알 수 없는 타입의 메시지 수신: ${parsedMessage.type}`);
+            if (parsedMessage.type === 'newChat') {
+                broadcast(roomId, { type: 'newChat', payload: parsedMessage.payload });
             }
         } catch (error) {
             console.error(`[${roomId}] 메시지 처리 중 오류 발생:`, error);
@@ -89,8 +80,36 @@ const handleConnection = async (ws: WebSocket, roomId: string) => {
 };
 
 
+// 특정 유저에게 메시지를 보내는 함수
+const broadcastToMember = (memberId: string, message: WebSocketMessage) => {
+    const client = memberConnections.get(memberId);
+    if (client && client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(message));
+        console.log(`[${memberId}] 유저에게 '${message.type}' 타입의 메시지를 전송합니다.`);
+    } else {
+        console.log(`[${memberId}] 유저를 찾을 수 없거나 연결이 끊어져 메시지를 보내지 못했습니다.`);
+    }
+};
+
+// 유저의 새 웹소켓 연결을 처리하는 함수
+const handleMemberConnection = (ws: WebSocket, memberId: string) => {
+    memberConnections.set(memberId, ws);
+    console.log(`유저 웹소켓 연결 : ${memberId}. 현재 총 유저 연결 수 : ${memberConnections.size}`);
+
+    ws.on('close', () => {
+        memberConnections.delete(memberId);
+        console.log(`유저 웹소켓 연결 끊김 : ${memberId}. 현재 총 유저 연결 수 : ${memberConnections.size}`);
+    });
+
+    ws.on('error', (error) => {
+        console.error(`유저 웹소켓 에러 ${memberId}:`, error);
+        memberConnections.delete(memberId);
+    });
+};
 
 export const webSocketService = {
     handleConnection,
     broadcast,
+    handleMemberConnection,
+    broadcastToMember
 };

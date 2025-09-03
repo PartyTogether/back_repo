@@ -14,6 +14,8 @@ import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { webSocketService } from './services/web-socket-service';
 import url from 'url';
+import * as cookie from 'cookie';
+import { verifyAccessToken } from './utils/jwt-util';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -45,13 +47,37 @@ AppDataSource.initialize()
 
         server.on('upgrade', (request, socket, head) => {
             const pathname = request.url ? url.parse(request.url).pathname : '';
+
             const roomMatch = pathname?.match(/^\/ws\/rooms\/([0-9a-fA-F-]+)$/);
+            const userMatch = pathname?.match(/^\/ws\/member$/);
 
             if (roomMatch) {
                 const roomId = roomMatch[1];
                 wss.handleUpgrade(request, socket, head, (ws) => {
                     webSocketService.handleConnection(ws, roomId);
                 });
+            } else if (userMatch) {
+                try {
+                    const cookies = cookie.parse(request.headers.cookie || '');
+                    const accessToken = cookies.access_token;
+                    if (!accessToken) {
+                        throw new Error('인증 토큰이 없습니다.');
+                    }
+
+                    const memberInfo = verifyAccessToken(accessToken);
+                    if (!memberInfo || !memberInfo.id) {
+                        throw new Error('유효하지 않은 토큰입니다.');
+                    }
+                    const memberId = memberInfo.id;
+
+                    wss.handleUpgrade(request, socket, head, (ws) => {
+                        webSocketService.handleMemberConnection(ws, memberId);
+                    });
+                } catch (error: any) {
+                    console.error('웹소켓 인증 실패:', error.message);
+                    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+                    socket.destroy();
+                }
             } else {
                 socket.destroy();
             }
