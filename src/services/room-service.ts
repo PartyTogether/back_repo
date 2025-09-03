@@ -198,7 +198,6 @@ export const applyRoomService = async (roomId: string, positionName: string, dis
 
 export const joinRoomService = async (applicantId: string, discordId: string) => {
     let memberIdForBroadcast: string | null = null;
-    let memberDiscordIdForBroadcast: string | null = null;
     let acceptedRoomId: string | null = null;
     let otherAppliedRoomsForBroadcast: Applicant[] = [];
 
@@ -231,7 +230,6 @@ export const joinRoomService = async (applicantId: string, discordId: string) =>
 
         // 브로드캐스트에 필요한 정보를 외부 변수에 할당
         memberIdForBroadcast = applicant.member.id;
-        memberDiscordIdForBroadcast = applicant.member.discord_id;
         acceptedRoomId = applicant.roomPosition.room.id;
         otherAppliedRoomsForBroadcast = await applicantRepo.find({
             where: { member: { id: applicant.member.id } },
@@ -245,12 +243,12 @@ export const joinRoomService = async (applicantId: string, discordId: string) =>
         await applicantRepo.delete({member: {id: applicant.member.id}});
     });
 
-    if (memberIdForBroadcast && acceptedRoomId && otherAppliedRoomsForBroadcast && memberDiscordIdForBroadcast) {
+    if (memberIdForBroadcast && acceptedRoomId && otherAppliedRoomsForBroadcast) {
         const updatedRoomData = await roomRepository.findRoomById(acceptedRoomId);
         if (updatedRoomData) {
             webSocketService.broadcast(acceptedRoomId, {
                 type: 'applicant_accepted',
-                payload: { 
+                payload: {
                     memberId: memberIdForBroadcast,
                     updatedRoomData
                 }
@@ -263,12 +261,10 @@ export const joinRoomService = async (applicantId: string, discordId: string) =>
             if (otherRoomId !== acceptedRoomId) {
                 webSocketService.broadcast(otherRoomId, {
                     type: 'applicant_canceled',
-                    payload: { applicantId: otherApplicant.id } 
+                    payload: { applicantId: otherApplicant.id }
                 });
             }
         }
-
-        webSocketService.broadcastToMember(memberDiscordIdForBroadcast,{ type: 'room_joined', payload:{}});
     }
 };
 
