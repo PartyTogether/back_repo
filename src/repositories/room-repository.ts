@@ -82,7 +82,7 @@ export const roomRepository = AppDataSource.getRepository(Room).extend({
                     memberId: rp.member.id,
                     memberName: rp.member.nickname || rp.member.globalName,
                     memberLevel: rp.member.level || null,
-                    memberClass: rp.member.job?.zzname || '',
+                    memberClass: rp.member.job?.name || '',
                     memberSkills: rp.member.memberSkills?.map(ms => ({
                         skillName: ms.skill?.name || '',
                         skillImage: ms.skill?.image || '',
