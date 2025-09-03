@@ -54,7 +54,7 @@ export class Member{
 
     @ManyToOne(() => Job, (job) => job.members)
     @JoinColumn({name:'job_id'})
-    job!: Job;
+    job!: string | null;
 
     @OneToMany(() => MemberSkill,(memberSkill) => memberSkill.member)
     memberSkills!: MemberSkill[];

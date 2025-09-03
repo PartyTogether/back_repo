@@ -8,7 +8,7 @@ import {
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
 import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
-import {getMemberById} from "../services/member-service";
+import {getMemberById, update} from "../services/member-service";
 
 
 const app = express();
@@ -97,5 +97,15 @@ export const getMember = async(req: Request, res: Response) => {
         res.status(200).json({ member : memberInfo });
     } catch(err)    {
         res.status(500).json({ message : "유저 정보 가져오기 오류 발생"});
+    }
+}
+
+export const updateMember = async(req: Request, res: Response) => {
+    console.log("유저 업데이트 실행");
+    try {
+        const updatedMemberInfo = await update(req);
+        res.status(200).json({ member : updatedMemberInfo });
+    } catch(err)    {
+        res.status(500).json({ message : "유저 정보 업데이트 실패"});
     }
 }
