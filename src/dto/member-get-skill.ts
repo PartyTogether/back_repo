@@ -1,5 +1,3 @@
-
-
 export interface MemberGetSkill {
     name: string,
     masterLevel: number
