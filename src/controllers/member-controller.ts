@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, {NextFunction, Request, Response} from "express";
 import asyncHandler from "express-async-handler";
 import {
     getAuthTokens,
@@ -8,7 +8,7 @@ import {
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
 import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
-import {getMemberById} from "../services/member-service";
+import {getMemberById, getMemberIdService} from "../services/member-service";
 
 
 const app = express();
@@ -99,3 +99,13 @@ export const getMember = async(req: Request, res: Response) => {
         res.status(500).json({ message : "유저 정보 가져오기 오류 발생"});
     }
 }
+
+export const getMemberIdController = async(req: Request, res: Response, next:NextFunction) => {
+    try{
+        const { memberId } = await getMemberIdService(req.member.id);
+        res.status(200).json({ memberId: memberId });
+    } catch (err){
+        next(err);
+    }
+}
+

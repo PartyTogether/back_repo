@@ -12,6 +12,7 @@ import {HuntingGround} from "./hunting-ground";
 import {Applicant} from "./applicant";
 import {Member} from "./member";
 import {RoomPosition} from "./room-position";
+import {Message} from "./message";
 
 @Entity()
 export class Room{
@@ -69,7 +70,7 @@ export class Room{
     @CreateDateColumn({
         type:'timestamp',
         default: () => 'CURRENT_TIMESTAMP(6)',
-        name:'room_create_at'
+        name:'room_created_at'
     })
     createdAt!: Date;
 
@@ -79,4 +80,7 @@ export class Room{
 
     @OneToMany(() => RoomPosition, (roomPosition) => roomPosition.room)
     roomPositions!: RoomPosition[];
+
+    @OneToMany(() => Message, (message) => message.room)
+    messages!:Message[];
 }
