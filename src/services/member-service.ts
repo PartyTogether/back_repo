@@ -51,6 +51,17 @@ export const getMemberById = async (req: Request): Promise<MemberGetRes> => {
     });
 }
 
+
+export const getMemberIdService = async(discordId: string) => {
+    const member = await memberRepository.findOne({ where: { discord_id:discordId }});
+    if(!member){
+        throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
+    }
+    return {
+        memberId: member.id,
+    }
+}
+
 export const update = async (req: Request): Promise<void> => {
     const discordId = req.member.id;
 
@@ -92,3 +103,4 @@ export const update = async (req: Request): Promise<void> => {
         await memberRepo.save(getMember);
     });
 }
+
