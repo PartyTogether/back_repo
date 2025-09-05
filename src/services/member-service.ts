@@ -148,5 +148,4 @@ export const update = async (req: Request): Promise<void> => {
         }
         console.log("✅ 멤버 정보 및 스킬 업데이트 완료");
     });
-  };
 }
