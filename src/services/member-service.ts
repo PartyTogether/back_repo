@@ -9,6 +9,9 @@ import {MemberUpdateReq} from "../dto/member-update-req";
 import {MemberGetSkill} from "../dto/member-get-skill";
 import {Member} from "../models/entities/member";
 import {MemberUpdateRes} from "../dto/member-update-res";
+import {Skill} from "../models/entities/skill";
+import {MemberSkill} from "../models/entities/member-skill";
+import {skillRepository} from "../repositories/skill-repository";
 
 
 export const getMemberById = async (req: Request): Promise<MemberGetRes> => {
@@ -17,40 +20,48 @@ export const getMemberById = async (req: Request): Promise<MemberGetRes> => {
     if(!discordId)  {
         throw new ClientError(403, "사용자 정보 요청이 유효하지 않습니다.");
     }
-    
-    return await AppDataSource.transaction(async (transactionalEntityManager) => {
-        const memberRepo = transactionalEntityManager.withRepository(memberRepository);
-        const jobRepo = transactionalEntityManager.withRepository(jobRepository);
-        const memberSkillRepo = transactionalEntityManager.withRepository(memberSkillRepository);
 
-        const getMember = await memberRepo.findOne({ where: { discord_id: discordId }});
+    return await AppDataSource.transaction(async (transactionalEntityManager): Promise<MemberGetRes> => {
+        const memberRepo = transactionalEntityManager.withRepository(memberRepository);
+        const memberSkillRepo = transactionalEntityManager.withRepository(memberSkillRepository);
+        const jobRepo = transactionalEntityManager.withRepository(jobRepository);
+
+        const getMember = await memberRepo.findOne({
+            where: { discord_id: discordId }
+        });
 
         if(!getMember) {
             throw new ClientError(403, "해당하는 유저가 존재하지 않습니다.");
         }
-        
-        //TODO 유저가 등록한 스킬 레벨 및 직업 반환 추가해야함
-        const getJobByMember = await jobRepo.findOne({ where : { members: getMember}});
-        const getSkillsByMember = await memberSkillRepo.find({
-            where: { member: getMember! },
+
+        const memberJob= await jobRepo.findOne({
+            where : { members: getMember }
+        });
+
+        const getMemberSkill = await memberSkillRepo.find({
+            where : { member: { id: getMember.id } },
             relations: ["skill"]
         });
 
+        const memberGetSkills: MemberGetSkill[] = getMemberSkill.map(ms => ({
+            name: ms.skill.name,          // Skill 엔티티의 name
+            level: ms.level,               // MemberSkill의 level
+            masterLevel: ms.skill.masterLevel, // Skill 엔티티의 masterLevel
+            image: ms.skill.image || null  // Skill 엔티티의 image
+        }));
+
+        console.log("getMember : ", getMember);
+        console.log("memberGetSkills : ", memberGetSkills);
+
         return {
-            offerComment: getMember.offer_comment,
+            offerComment : getMember.offer_comment,
             level: getMember.level,
             nickName: getMember.nickname,
-            job: getJobByMember?.name ?? null,
-            skill: getSkillsByMember.map(ms => ({
-                name: ms.skill.name,
-                masterLevel: ms.skill.masterLevel,
-                image: ms.skill.image,
-                level: ms.level
-            }))
+            job: memberJob?.name || '초보자',
+            skill: memberGetSkills
         }
     });
 }
-
 
 export const getMemberIdService = async(discordId: string) => {
     const member = await memberRepository.findOne({ where: { discord_id:discordId }});
@@ -63,44 +74,79 @@ export const getMemberIdService = async(discordId: string) => {
 }
 
 export const update = async (req: Request): Promise<void> => {
+    const reqData = req.body;
     const discordId = req.member.id;
 
     if(!discordId)  {
         throw new ClientError(403, "사용자 정보 요청이 유효하지 않습니다.");
     }
 
-    const { level, nickName, job, offerComment, skill }: MemberUpdateReq = req.body;
-
     return await AppDataSource.transaction(async (transactionalEntityManager) => {
         const memberRepo = transactionalEntityManager.withRepository(memberRepository);
+        const skillRepo = transactionalEntityManager.withRepository(skillRepository);
+        const memberSkillRepo = transactionalEntityManager.withRepository(memberSkillRepository);
+        const jobRepo = transactionalEntityManager.withRepository(jobRepository);
+
+        // 멤버 조회 (기존 스킬 포함)
         const getMember = await memberRepo.findOne({
-            where : {discord_id : discordId },
-            relations : ["skill"]
+            where: { discord_id: discordId },
+            relations: ["memberSkills", "memberSkills.skill", "job"],
         });
 
-        if(!getMember)  {
-            throw new ClientError(403, "존재하는 사용자가 아닙니다.");
+        if (!getMember) {
+            throw new ClientError(404, "존재하지 않는 사용자입니다.");
         }
 
-        getMember.level = level;
-        getMember.nickname = nickName;
-        getMember.job = job;
-        getMember.offer_comment = offerComment;
+        // 멤버 기본 정보 업데이트
+        getMember.level = req.body.level;
+        getMember.nickname = req.body.nickName;
+        getMember.offer_comment = req.body.offerComment;
 
-        // 스킬 업데이트
-        if (skill && Array.isArray(skill)) {
-            // 아니면 매핑해서 업데이트할 수도 있음 → 여기서는 교체 예시
-            getMember.memberSkills = skill.map((s: MemberGetSkill) => {
-                return transactionalEntityManager.create("Skill", {
-                    name: s.name,
-                    masterLevel: s.masterLevel,
-                    image: s.image,
+        // 직업이 변경된 경우
+        if (getMember.job && reqData.job) {
+            const jobInfo = await jobRepo.findOne({
+                where: { name : reqData.job.name }
+            });
+            getMember.job = jobInfo!;
+        }
+
+        // 저장
+        await memberRepo.save(getMember);
+
+        // 기존 MemberSkill 삭제
+        if (getMember.memberSkills.length > 0) {
+            const memberSkillIds = getMember.memberSkills.map((ms) => ms.id);
+            await memberSkillRepo.delete(memberSkillIds);
+        }
+
+        // 새로운 MemberSkill 생성
+        if (req.body.skill && Array.isArray(req.body.skill)) {
+            for (const s of req.body.skill) {
+                // Skill 엔티티 먼저 조회
+                let skillEntity = await skillRepo.findOne({ where: { name: s.name } });
+
+                // Skill 엔티티가 없으면 새로 생성
+                if (!skillEntity) {
+                    skillEntity = skillRepo.create({
+                        name: s.name,
+                        masterLevel: s.masterLevel,
+                        image: s.image || null,
+                        job: getMember.job,
+                    });
+                    await skillRepo.save(skillEntity);
+                }
+
+                // MemberSkill 생성
+                const memberSkill = memberSkillRepo.create({
+                    member: getMember,
+                    skill: skillEntity,
                     level: s.level,
                 });
-            });
+
+                await memberSkillRepo.save(memberSkill);
+            }
         }
-
-        await memberRepo.save(getMember);
+        console.log("✅ 멤버 정보 및 스킬 업데이트 완료");
     });
+  };
 }
-

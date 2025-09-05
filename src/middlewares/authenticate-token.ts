@@ -72,16 +72,15 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
                 req.member = member;
 
                 // redis에 RefreshToken 저장
-                await saveRefreshTokenInRedis(newMember.id, refreshToken);
+                await saveRefreshTokenInRedis(newMember.id, newRefreshToken);
 
                 next();
             } catch (refreshErr)   {
                 console.log("RefreshErr : ", refreshErr);
-                res.status(401).json({ message : "유효하지 않은 토큰입니다 -> " + refreshErr });
                 res.clearCookie("access_token");
                 res.clearCookie("refresh_token");
                 res.clearCookie("auth_status");
-                res.redirect(process.env.BASE_URL!);
+                res.status(406).json({ message : "유효하지 않은 토큰입니다 -> " + refreshErr });
                 return;
             }
         }

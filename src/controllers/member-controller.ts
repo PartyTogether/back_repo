@@ -8,10 +8,28 @@ import {
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
 import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
+import {getMemberById, update} from "../services/member-service";
+import {plainToInstance} from "class-transformer";
+import {RoomCreateReq} from "../dto/room-create-req";
+import {validate, ValidationError} from "class-validator";
+import {ClientError} from "../error/client-error";
+import {MemberUpdateReq} from "../dto/member-update-req";
 import {getMemberById, getMemberIdService, update} from "../services/member-service";
 
-
 const app = express();
+
+const getErrorMessages = (errors: ValidationError[]): string[] => {
+    let messages: string[] = [];
+    for (const error of errors) {
+        if (error.constraints) {
+            messages = messages.concat(Object.values(error.constraints));
+        }
+        if (error.children && error.children.length > 0) {
+            messages = messages.concat(getErrorMessages(error.children));
+        }
+    }
+    return messages;
+};
 
 // 디스코드 로그인 요청
 export const discordLogin = (req: Request, res: Response) => {
@@ -64,14 +82,14 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
         res.redirect(process.env.BASE_URL!);
     } catch (error) {
         console.error("Discord 인증 실패 : ", error);
-        res.status(500).send("Discord 인증 실패");
+        res.status(500).json("Discord 인증 실패");
     }
 });
 
 export const authMe = (req: Request, res: Response) => {
     console.log("클라이언트 식별 요청 : ", req.member);
     if(req.member)  {
-        res.status(200).send(req.member);
+        res.status(200).json(req.member);
     }
 }
 
@@ -94,9 +112,11 @@ export const getMember = async(req: Request, res: Response) => {
     console.log("유저 정보 가져오기 실행");
     try {
         const memberInfo = await getMemberById(req);
+        console.log("memberInfo : ", memberInfo);
         res.status(200).json({ member : memberInfo });
     } catch(err)    {
-        res.status(500).json({ message : "유저 정보 가져오기 오류 발생"});
+        console.log("err : ", err);
+        res.status(500).json({ message : "유저 정보 가져오기 오류 발생" });
     }
 }
 
@@ -111,6 +131,17 @@ export const getMemberIdController = async(req: Request, res: Response, next:Nex
 
 export const updateMember = async(req: Request, res: Response) => {
     console.log("유저 업데이트 실행");
+    try {
+        const reqBody = plainToInstance(MemberUpdateReq, req.body);
+        const errors = await validate(reqBody);
+        if (errors.length > 0) {
+            const errorMessages = getErrorMessages(errors);
+            throw new ClientError(400,errorMessages.join(', '));
+        }
+    } catch (err) {
+        throw new ClientError(500, "Request Validation 진행중 에러발생 : " + err);
+    }
+
     try {
         const updatedMemberInfo = await update(req);
         res.status(200).json({ member : updatedMemberInfo });

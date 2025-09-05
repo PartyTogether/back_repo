@@ -13,6 +13,7 @@ import {AppDataSource} from "../data-source";
 import {Member} from "../models/entities/member";
 import {Repository} from "typeorm";
 import {createMemberFromDiscordMember} from "../converter/auth-converter";
+import {ClientError} from "../error/client-error";
 
 
 const clientID = process.env.CLIENT_ID!;
@@ -101,7 +102,7 @@ export const generateNewTokens = async (refreshToken: string) => {
 
         if (redisToken !== refreshToken) {
             // 일치하지 않으면 예외 발생
-            throw new Error("Refresh Token이 유효하지 않습니다.");
+            throw new ClientError(406, "Refresh Token이 유효하지 않습니다.");
         }
 
         // refreshToken에 문제 없을 시 새로운 토큰 발행
@@ -119,10 +120,10 @@ export const generateNewTokens = async (refreshToken: string) => {
         // 만료 여부 체크
         if (err instanceof jwt.TokenExpiredError) {
             // refreshToken 만료 되었을 시 에러 처리
-            throw new Error("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
+            throw new ClientError(406, "Refresh Token이 만료되었습니다. 다시 로그인하세요.");
         } else {
             // refreshToken이 만료된 게 아니라 다른 오류
-            throw new Error("Refresh Token이 만료된게 아닌 다른 에러가 존재합니다. --> " + err);
+            throw new ClientError(406, "Refresh Token이 만료된게 아닌 다른 에러가 존재합니다. 다시 로그인 하세요.");
         }
     }
 }
