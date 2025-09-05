@@ -6,6 +6,6 @@ import {getSkills} from "../controllers/skill-controller";
 
 const router = express.Router();
 
-router.get("", getSkills);
+router.get("", authenticateToken, getSkills);
 
 export default router;
