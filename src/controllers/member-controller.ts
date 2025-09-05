@@ -8,13 +8,12 @@ import {
 } from "../services/auth-service";
 import {MemberInfo} from "../types/discord-member";
 import {deleteRefreshTokenInRedis} from "../utils/jwt-util";
-import {getMemberById, update} from "../services/member-service";
+import {getMemberById, update, getMemberIdService} from "../services/member-service";
 import {plainToInstance} from "class-transformer";
 import {RoomCreateReq} from "../dto/room-create-req";
 import {validate, ValidationError} from "class-validator";
 import {ClientError} from "../error/client-error";
 import {MemberUpdateReq} from "../dto/member-update-req";
-import {getMemberById, getMemberIdService, update} from "../services/member-service";
 
 const app = express();
 
