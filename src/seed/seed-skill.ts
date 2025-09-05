@@ -4,6 +4,23 @@ import {Job} from "../models/entities/job";
 
 
 const skills: Record<string, {name:string, masterLevel:number, image: string}[]> = {
+    '초보자' : [
+        {
+            name : '달팽이 세마리',
+            masterLevel : 3,
+            image : ''
+        },
+        {
+            name : '민첩한 몸놀림',
+            masterLevel : 3,
+            image : ''
+        },
+        {
+            name : '회복',
+            masterLevel : 3,
+            image : ''
+        }
+    ],
     '히어로' : [
         {
             name : '분노',

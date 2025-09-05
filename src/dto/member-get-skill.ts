@@ -1,6 +1,16 @@
-export interface MemberGetSkill {
-    name: string,
-    masterLevel: number
-    level: number,
-    image: string | null,
+import {IsNumber, IsOptional, IsString} from "class-validator";
+
+export class MemberGetSkill {
+    @IsString()
+    name!: string;
+
+    @IsNumber()
+    level!: number;
+
+    @IsNumber()
+    masterLevel!: number;
+
+    @IsOptional()
+    @IsString()
+    image!: string | null;
 }

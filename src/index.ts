@@ -16,6 +16,8 @@ import { webSocketService } from './services/web-socket-service';
 import url from 'url';
 import * as cookie from 'cookie';
 import { verifyAccessToken } from './utils/jwt-util';
+import skillRouter from "./router/skill-router";
+import jobRouter from "./router/job-router";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +42,8 @@ AppDataSource.initialize()
         // 라우터들
         app.use('/auth', oauthRouter);
         app.use('/api/member', memberRouter);
+        app.use('/api/skill', skillRouter);
+        app.use('/api/job', jobRouter);
         app.use('/api/room',roomRouter);
         app.use('/api/continents',continentRouter);
 

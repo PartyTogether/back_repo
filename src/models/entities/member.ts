@@ -27,10 +27,10 @@ export class Member{
     @Column({name:'member_discriminator', type:'varchar'})
     discriminator!: string;  // 디스코드 태그번호
 
-    @Column({name:'member_public_flags', type: 'varchar'})
+    @Column({name:'member_public_flags', type: 'integer'})
     public_flags!:number;    // 디스코드 공개 플래그
 
-    @Column({name:'member_flags', type: 'varchar'})
+    @Column({name:'member_flags', type: 'integer'})
     flags!: number;          // 디스코드 사용자 특성 플래그
 
     @Column({name:'member_mfa_enabled', type: "boolean"})
@@ -39,7 +39,7 @@ export class Member{
     @Column({name:'member_verified', type: 'boolean'})
     verified!: boolean;      // 디스코드 이메일 인증 여부
 
-    @Column({name:'member_offer_comment', type: 'varchar', length: 100, nullable:true})
+    @Column({name:'member_offer_comment', type: 'varchar', length: 100, nullable:true })
     offer_comment!: string | null;  // 구인 신청 포맷
 
     @Column({name:'member_level', type: 'integer', default: 1})

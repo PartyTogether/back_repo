@@ -6,6 +6,7 @@ const seedJob = async () => {
     const jobRepo = AppDataSource.getRepository(Job);
 
     const jobs = [
+        {name:"초보자"},
         {name:"히어로"},
         {name:"다크나이트"},
         {name:"팔라딘"},
