@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, {NextFunction, Request, Response} from "express";
 import asyncHandler from "express-async-handler";
 import {
     getAuthTokens,
@@ -14,7 +14,7 @@ import {RoomCreateReq} from "../dto/room-create-req";
 import {validate, ValidationError} from "class-validator";
 import {ClientError} from "../error/client-error";
 import {MemberUpdateReq} from "../dto/member-update-req";
-
+import {getMemberById, getMemberIdService, update} from "../services/member-service";
 
 const app = express();
 
@@ -120,6 +120,15 @@ export const getMember = async(req: Request, res: Response) => {
     }
 }
 
+export const getMemberIdController = async(req: Request, res: Response, next:NextFunction) => {
+    try{
+        const { memberId } = await getMemberIdService(req.member.id);
+        res.status(200).json({ memberId: memberId });
+    } catch (err){
+        next(err);
+    }
+}
+
 export const updateMember = async(req: Request, res: Response) => {
     console.log("유저 업데이트 실행");
     try {
@@ -140,3 +149,4 @@ export const updateMember = async(req: Request, res: Response) => {
         res.status(500).json({ message : "유저 정보 업데이트 실패"});
     }
 }
+

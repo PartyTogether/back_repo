@@ -63,7 +63,17 @@ export const getMemberById = async (req: Request): Promise<MemberGetRes> => {
     });
 }
 
-export const update = async (req: Request) => {
+export const getMemberIdService = async(discordId: string) => {
+    const member = await memberRepository.findOne({ where: { discord_id:discordId }});
+    if(!member){
+        throw new ClientError(404,"해당 유저를 찾을 수 없습니다.");
+    }
+    return {
+        memberId: member.id,
+    }
+}
+
+export const update = async (req: Request): Promise<void> => {
     const reqData = req.body;
     const discordId = req.member.id;
 
@@ -138,4 +148,5 @@ export const update = async (req: Request) => {
         }
         console.log("✅ 멤버 정보 및 스킬 업데이트 완료");
     });
-};
+  };
+}

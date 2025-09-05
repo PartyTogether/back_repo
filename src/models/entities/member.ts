@@ -6,6 +6,7 @@ import {Bookmark} from "./bookmark";
 import {MemberSkill} from "./member-skill";
 import {Room} from "./room";
 import {RoomPosition} from "./room-position";
+import {Message} from "./message";
 
 @Entity()
 export class Member{
@@ -64,5 +65,8 @@ export class Member{
 
     @OneToMany(() => Applicant, (applicant) => applicant.member)
     applicants!: Applicant[];
+
+    @OneToMany(() => Message, (message) => message.member)
+    messages!: Message[];
 
 }
