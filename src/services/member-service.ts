@@ -98,15 +98,18 @@ export const update = async (req: Request): Promise<void> => {
         }
 
         // 멤버 기본 정보 업데이트
-        getMember.level = req.body.level;
-        getMember.nickname = req.body.nickName;
-        getMember.offer_comment = req.body.offerComment;
+        getMember.level = reqData.level;
+        getMember.nickname = reqData.nickName;
+        getMember.offer_comment = reqData.offerComment;
+
+        console.log("reqData.job.name : ", reqData.job);
 
         // 직업이 변경된 경우
         if (getMember.job && reqData.job) {
             const jobInfo = await jobRepo.findOne({
-                where: { name : reqData.job.name }
+                where: { name : reqData.job }
             });
+            console.log("jobInfo : ", jobInfo);
             getMember.job = jobInfo!;
         }
 

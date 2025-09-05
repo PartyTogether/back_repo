@@ -19,6 +19,5 @@ const app = express();
 // 직업 Get 요청
 export const getJobs = async (req: Request, res: Response) => {
     const jobs = await getAllJob();
-    console.log("jobs : ", jobs);
     res.status(200).json(jobs);
 }

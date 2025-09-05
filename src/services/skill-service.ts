@@ -13,10 +13,12 @@ import {Skill} from "../models/entities/skill";
 import {MemberSkill} from "../models/entities/member-skill";
 import {skillRepository} from "../repositories/skill-repository";
 import {SkillGetRes} from "../dto/skill-get-res";
+import {Job} from "../models/entities/job";
 
 
 export const getSkillsByJob = async (req: Request):Promise<SkillGetRes[]> => {
     const discordId = req.member.id;
+    const job: string = req.query.job as string;
 
     if(!discordId)  {
         throw new ClientError(403, "사용자 정보 요청이 유효하지 않습니다.");
@@ -24,8 +26,17 @@ export const getSkillsByJob = async (req: Request):Promise<SkillGetRes[]> => {
 
     return await AppDataSource.transaction(async (transactionalEntityManager) => {
         const skillRepo = transactionalEntityManager.withRepository(skillRepository);
+        const jobRepo = transactionalEntityManager.withRepository(jobRepository);
 
-        const getSkillByJob = await skillRepo.find({ where : { job : req.body.job }});
+        const getJob: Job | null = await jobRepo.findOne({ where : { name : job }});
+
+        if(!getJob) {
+            throw new ClientError(404, "직업을 찾을 수 없습니다!");
+        }
+
+        const getSkillByJob = await skillRepo.find({ where : { job : getJob }});
+
+        console.log("getSkillByJob : ", getSkillByJob);
 
         return getSkillByJob.map(skill => ({
             name: skill.name,

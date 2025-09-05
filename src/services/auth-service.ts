@@ -102,7 +102,7 @@ export const generateNewTokens = async (refreshToken: string) => {
 
         if (redisToken !== refreshToken) {
             // 일치하지 않으면 예외 발생
-            throw new ClientError(406, "Refresh Token이 유효하지 않습니다.");
+            throw new ClientError(406, "Client와 Redis의 토큰값이 다릅니다.");
         }
 
         // refreshToken에 문제 없을 시 새로운 토큰 발행
