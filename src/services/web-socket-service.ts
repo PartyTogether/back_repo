@@ -32,7 +32,7 @@ const broadcast = (roomId: string, message: WebSocketMessage) => {
 };
 
 // 방의 새 웹소켓 연결을 처리하는 함수
-const handleConnection = async (ws: WebSocket, roomId: string, memberId: string) => {
+const handleConnection = async (ws: WebSocket, roomId: string) => {
     if (!roomConnections.has(roomId)) {
         roomConnections.set(roomId, new Set());
     }
@@ -40,8 +40,6 @@ const handleConnection = async (ws: WebSocket, roomId: string, memberId: string)
     connections.add(ws);
 
     console.log(`웹소켓 연결 된 방 아이디 : ${roomId}. 현재 구독자 수 : ${connections.size}`);
-    console.log(`유저 웹소켓 연결 : ${memberId}. 현재 총 유저 연결 수 : ${memberConnections.size}`);
-
 
     try {
         const roomData = await roomRepository.findRoomById(roomId);
@@ -58,22 +56,9 @@ const handleConnection = async (ws: WebSocket, roomId: string, memberId: string)
         ws.close(1011, "Internal server error.");
     }
 
-    ws.on('message', (message: string) => {
-        try {
-            const parsedMessage: WebSocketMessage = JSON.parse(message);
-            if (parsedMessage.type === 'newChat') {
-                broadcast(roomId, { type: 'newChat', payload: parsedMessage.payload });
-            }
-        } catch (error) {
-            console.error(`[${roomId}] 메시지 처리 중 오류 발생:`, error);
-        }
-    });
-
     ws.on('close', () => {
         connections.delete(ws);
-        memberConnections.delete(memberId);
         console.log(`웹 소켓 연결을 끊었습니다. ${roomId}. 현재 구독자 수 : ${connections.size}`);
-        console.log(`유저 웹소켓 연결 끊김 : ${memberId}. 현재 총 유저 연결 수 : ${memberConnections.size}`);
         if (connections.size === 0) {
             roomConnections.delete(roomId);
         }
@@ -82,7 +67,6 @@ const handleConnection = async (ws: WebSocket, roomId: string, memberId: string)
     ws.on('error', (error) => {
         console.error(`방에 에러가 발생했습니다. ${roomId}:`, error);
         connections.delete(ws);
-        memberConnections.delete(memberId);
     });
 };
 

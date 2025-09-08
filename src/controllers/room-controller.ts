@@ -38,7 +38,6 @@ export const createRoomController = async (req: Request, res: Response, next: Ne
             const errorMessages = getErrorMessages(errors);
             throw new ClientError(400,errorMessages.join(', '));
         }
-
         await createRoom(req);
         res.status(201).json({ message: "방 생성 성공" });
     } catch (err) {
