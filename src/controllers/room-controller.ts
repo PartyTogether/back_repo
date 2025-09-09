@@ -10,7 +10,7 @@ import {
     getMyRoomService,
     joinRoomService,
     leaveRoom,
-    applyRoomService,
+    applyRoomService, deleteRoomService,
 } from "../services/room-service";
 import {RoomsReq} from "../dto/rooms-req";
 import {RoomApplyReq} from "../dto/room-apply-req";
@@ -123,3 +123,14 @@ export const leaveRoomController = async (req: Request, res: Response, next: Nex
         next(err);
     }
 };
+
+export const deleteRoomController = async(req:Request<{ id:string }>, res:Response, next:NextFunction) => {
+    try{
+        const discordId = req.member.id;
+        const roomId = req.params.id;
+        await deleteRoomService(roomId,discordId);
+        res.status(200).json({ message:'방이 성공적으로 삭제 되었습니다.'});
+    } catch (err){
+        next(err)
+    }
+}
