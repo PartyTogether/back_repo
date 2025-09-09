@@ -6,7 +6,8 @@ import {
     getRoomMetaController,
     getRoomsController,
     joinRoomController,
-    leaveRoomController
+    leaveRoomController,
+    deleteRoomController
 } from "../controllers/room-controller";
 import {authenticateToken} from "../middlewares/authenticate-token";
 import {optionalAuthenticateToken} from "../middlewares/optional-authenticate-token";
@@ -26,5 +27,7 @@ router.post("/apply",authenticateToken, applyRoomController);
 router.post('/apply/accept', authenticateToken, joinRoomController);
 
 router.delete('/leave', authenticateToken, leaveRoomController);
+
+router.delete('/delete/:id', authenticateToken, deleteRoomController);
 
 export default router;

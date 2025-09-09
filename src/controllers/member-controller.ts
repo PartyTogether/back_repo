@@ -49,7 +49,7 @@ export const discordCallback = asyncHandler(async (req: Request, res: Response) 
     // Discord 멤버 정보를 요청하기 위한 토큰 발급
     const token: string = await getDiscordToken(code);
 
-    // Discord에서 발급한 유저 정보
+    // Discord 에서 발급한 유저 정보
     const member: MemberInfo = await getDiscordMember(token);
 
     try {

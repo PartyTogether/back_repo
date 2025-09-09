@@ -6,7 +6,7 @@ import {messageRepository} from "../repositories/message-repository";
 
 // 표준 웹소켓 메시지 인터페이스
 interface WebSocketMessage {
-    type: 'leaveRoom' | 'newChat' | 'newApplicant' | 'error'  | 'initialData' | 'applicant_accepted' | 'applicant_canceled' | 'room_joined';
+    type: 'leaveRoom' | 'newChat' | 'newApplicant' | 'error'  | 'initialData' | 'applicant_accepted' | 'applicant_canceled' | 'room_joined' | 'room_deleted';
     payload: unknown;
 }
 
@@ -30,6 +30,19 @@ const broadcast = (roomId: string, message: WebSocketMessage) => {
         console.log(`[${roomId}] 방에 '${message.type}' 타입의 메시지를 브로드캐스트합니다. (${connections.size}명)`);
     }
 };
+
+// 방 삭제 함수
+const closeRoomConnections = (roomId: string) => {
+    const connections = roomConnections.get(roomId);
+    if (connections) {
+        connections.forEach(client => {
+            client.close(1000, 'Room deleted');
+        });
+        roomConnections.delete(roomId);
+        console.log(`[${roomId}] 방이 삭제되어 모든 웹소켓 연결을 종료했습니다.`);
+    }
+};
+
 
 // 방의 새 웹소켓 연결을 처리하는 함수
 const handleConnection = async (ws: WebSocket, roomId: string) => {
@@ -98,9 +111,11 @@ const handleMemberConnection = (ws: WebSocket, memberId: string) => {
     });
 };
 
+
 export const webSocketService = {
     handleConnection,
     broadcast,
     handleMemberConnection,
-    broadcastToMember
+    broadcastToMember,
+    closeRoomConnections
 };
