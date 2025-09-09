@@ -316,6 +316,7 @@ export const leaveRoom = async (discordId: string) => {
 import { messageRepository } from '../repositories/message-repository';
 
 export const deleteRoomService = async(roomId:string, discordId:string) => {
+    let memberDiscordIdsForBroadcast:string[] = [];
     const member = await memberRepository.findOne({ where: {discord_id: discordId }});
     if(!member){
         throw new ClientError(404,'해당 유저를 찾을 수 없습니다.');
@@ -334,9 +335,12 @@ export const deleteRoomService = async(roomId:string, discordId:string) => {
         const applicantRepo = transactionalEntityManager.withRepository(applicantRepository);
         const messageRepo = transactionalEntityManager.withRepository(messageRepository);
 
-        const roomPositions = await roomPositionRepo.find({ where: { room: { id: roomId } } });
+        const roomPositions = await roomPositionRepo.find({ where: { room: { id: roomId } }, relations:['member'] });
         if (roomPositions.length > 0) {
             const roomPositionIds = roomPositions.map(rp => rp.id);
+            memberDiscordIdsForBroadcast = roomPositions
+                .filter(rp => rp.member)
+                .map(rp => rp.member!.discord_id);
             await applicantRepo.delete({ roomPosition: { id: In(roomPositionIds) } });
         }
 
@@ -347,6 +351,10 @@ export const deleteRoomService = async(roomId:string, discordId:string) => {
         await roomRepo.delete({ id: roomId });
     });
 
-    webSocketService.broadcast(roomId, { type: 'room_deleted', payload: { roomId } });
+    if( memberDiscordIdsForBroadcast.length > 0 ){
+        for(const memberDiscordId of memberDiscordIdsForBroadcast){
+            webSocketService.broadcastToMember(memberDiscordId, { type: 'room_deleted', payload: {}});
+        }
+    }
     webSocketService.closeRoomConnections(roomId);
 }
